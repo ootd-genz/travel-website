@@ -2,31 +2,31 @@
 
 ## Public Navigation
 
-- [ ] Urutan menu: Home → Blog → Activities → Destination → Trip Types.
-- [ ] Logo kembali ke Home.
-- [ ] Mobile navigation accessible.
+- [x] Urutan menu: Home → Blog → Activities → Destination → Trip Types.
+- [x] Logo kembali ke Home.
+- [x] Mobile navigation accessible.
 
 ## Home
 
-- [ ] Semua section tersedia: Headline, Booking, Popular Package, USP, Featured Trips, Deals & Discounts, Popular Destinations, Browse Activities, Blog, Footer.
-- [ ] Data curated tidak diduplikasi.
-- [ ] CTA mengarah ke entity/paket yang benar.
+- [x] Semua section tersedia: Headline, Booking, Popular Package, USP, Featured Trips, Deals & Discounts, Popular Destinations, Browse Activities, Blog, Footer.
+- [x] Data curated tidak diduplikasi.
+- [x] CTA mengarah ke entity/paket yang benar.
 
 ## Content Pages
 
-- [ ] Blog, Activities, Destination, Trip Types memiliki list + detail yang sesuai.
-- [ ] Semua memiliki loading/empty/error state.
-- [ ] Only active/published content tampil publik.
+- [x] Blog, Activities, Destination, Trip Types memiliki list + detail yang sesuai.
+- [x] Semua memiliki loading/empty/error state.
+- [x] Only active/published content tampil publik.
 
 ## Package
 
-- [ ] Harga tampil jelas.
-- [ ] Itinerary, included, excluded, duration, destination tersedia.
-- [ ] CTA Pesan Sekarang membuat draft server-side.
+- [x] Harga tampil jelas.
+- [x] Itinerary, included, excluded, duration, destination tersedia.
+- [x] CTA Pesan Sekarang membuat draft server-side.
 
 ## Booking
 
-- [ ] Harga snapshot dihitung server.
+- [x] Harga snapshot dihitung server.
 - [ ] Rekening tampil: BCA 87654321.
 - [ ] Nama pemilik rekening berasal dari konfigurasi yang valid.
 - [ ] Pengunjung dapat mengisi data diri.
@@ -67,18 +67,18 @@
 
 ## SEO & Accessibility
 
-- [ ] Metadata unique public pages.
+- [x] Metadata unique public pages.
 - [ ] Sitemap dan robots valid.
-- [ ] Satu H1 utama per content page.
-- [ ] Alt image.
+- [x] Satu H1 utama per content page.
+- [x] Alt image.
 - [ ] Keyboard/focus/labels diuji.
 - [ ] Target WCAG 2.2 AA untuk flow utama.
 
 ## Build & QA
 
-- [ ] TypeScript clean.
-- [ ] Lint clean.
-- [ ] Test kritis lulus.
-- [ ] Production build lulus.
-- [ ] Responsive QA lulus.
+- [x] TypeScript clean.
+- [x] Lint clean.
+- [x] Test kritis Phase 2–5 lulus.
+- [x] Production build lulus.
+- [x] Responsive QA Phase 5 lulus.
 - [ ] Staging UAT disetujui.

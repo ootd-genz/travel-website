@@ -84,6 +84,10 @@ Dikonfirmasi / Ditolak / Dibatalkan / Selesai
 | `24-phase-1-baseline.md` | Implementasi, batas scope, dan hasil validasi baseline Phase 1 |
 | `25-phase-2-supabase.md` | Implementasi schema, migration, RLS, private storage, dan QA Phase 2 |
 | `26-phase-3-single-admin-auth.md` | Implementasi login/logout, authorization, rate limit, audit, dan QA Phase 3 |
+| `27-phase-4-admin-cms-core.md` | Implementasi CMS admin, validasi, relasi, media konten, audit, dan QA Phase 4 |
+| `28-phase-5-public-content-pages.md` | Implementasi halaman publik, data published, cache/revalidation, responsive UI, dan QA Phase 5 |
+| `29-bali-demo-data.md` | Seed data demo Travel Bali, cakupan konten, gambar Unsplash, dan cara verifikasi Supabase |
+| `30-phase-6-booking-draft-price-snapshot.md` | Implementasi draft booking, kalkulasi promo, token aman, expiry, snapshot harga, dan QA Phase 6 |
 | `roadmap.md` | Tahapan setup sampai production & QA |
 | `project-guidelines.md` | Salinan guideline sumber dari lampiran |
 

@@ -114,83 +114,111 @@ Implementasi dan hasil validasi dicatat pada
 
 # Phase 4 — Admin CMS Core
 
+**Status implementasi: selesai dan diverifikasi lokal pada 29 Juli 2026.**
+Schema konten dan RLS runtime Supabase telah diverifikasi. Pengujian CRUD dengan
+session admin tetap menunggu provisioning credential yang dipilih pemilik project.
+
 ## Scope
 
 Urutan implementasi:
 
-1. Paket Travel
-2. Destination
-3. Activities
-4. Trip Types
-5. Blog
-6. Promotions
-7. Home content/USP
-8. Site settings/footer/payment info
+- [x] Paket Travel
+- [x] Destination
+- [x] Activities
+- [x] Trip Types
+- [x] Blog
+- [x] Promotions
+- [x] Home content/USP
+- [x] Site settings/footer/payment info
 
 ## UX
 
-- clean sidebar;
-- TanStack Table bila perlu;
-- simple forms shadcn;
-- loading/empty/error/success states.
+- [x] clean sidebar desktop + Sheet mobile;
+- [x] table shadcn responsif untuk list sederhana; TanStack Table tidak diperlukan untuk dataset CMS awal;
+- [x] simple forms shadcn/Radix yang dipisah per section;
+- [x] loading/empty/error/success states.
 
 ## QA
 
-- CRUD;
-- validation;
-- media upload;
-- publish/unpublish;
-- relation integrity.
+- [x] CRUD pages dan Server Actions lulus static validation/typecheck/build;
+- [x] validation Zod server lulus positive/negative fixture;
+- [x] media upload memiliki allowlist, size/signature check, random path, dan orphan cleanup;
+- [x] publish/unpublish/archive diproses server-side dan memicu revalidation;
+- [x] relation integrity dijaga validation, foreign key, composite key, dan sinkronisasi junction;
+- [ ] ulangi seluruh skenario CRUD/upload dengan fixture admin remote setelah satu akun admin diprovision.
+
+Implementasi dan hasil validasi dicatat pada
+[`27-phase-4-admin-cms-core.md`](27-phase-4-admin-cms-core.md).
 
 ---
 
 # Phase 5 — Public Content Pages
 
+**Status implementasi: selesai dan diverifikasi lokal pada 29 Juli 2026.**
+Konten runtime mengikuti row published/active pada Supabase. Projection pengaturan
+publik, anon RLS, dan fixture Travel Bali telah diverifikasi pada runtime Supabase.
+
 ## Scope
 
-- Home dengan 10 section + footer;
-- Blog list/detail;
-- Activities list/detail;
-- Destination list/detail;
-- Trip Types list/detail;
-- Package detail;
-- responsive header/footer;
-- public content caching/revalidation.
+- [x] Home dengan 10 section + footer;
+- [x] Blog list/detail;
+- [x] Activities list/detail;
+- [x] Destination list/detail;
+- [x] Trip Types list/detail;
+- [x] Package list/detail sebagai route pendukung katalog;
+- [x] responsive header/footer;
+- [x] public content caching/revalidation.
 
 ## Copywriting
 
-Implementasikan Bahasa Indonesia dari `17-copywriting-library.md`, lalu sesuaikan dengan brand final.
+- [x] implementasikan Bahasa Indonesia dari `17-copywriting-library.md` dengan fallback brand `Travel Bali`;
+- [x] konten hero, USP, kurasi, branding, kontak, dan footer mengikuti data CMS ketika tersedia.
 
 ## QA
 
-- desktop/mobile;
-- internal link;
-- empty/error;
-- image alt;
-- semantic heading.
+- [x] desktop/mobile diverifikasi pada viewport 1440×900 dan 390×844;
+- [x] internal link dan active navigation;
+- [x] loading/empty/error state;
+- [x] image alt dan fallback media;
+- [x] semantic heading dengan satu H1 per content page;
+- [x] seed dummy Travel Bali tersimpan idempotent di Supabase;
+- [x] seluruh data dummy dapat dibaca role anonim sesuai RLS;
+- [x] gambar katalog publik termuat dari CDN Unsplash;
+- [x] lint, typecheck, static test Phase 2–5, dan production build.
+
+Hasil implementasi dan validasi dicatat pada
+[`28-phase-5-public-content-pages.md`](28-phase-5-public-content-pages.md) dan
+[`29-bali-demo-data.md`](29-bali-demo-data.md).
 
 ---
 
 # Phase 6 — Booking Draft & Price Snapshot
 
+**Status implementasi: selesai dan diverifikasi lokal pada 29 Juli 2026.**
+Migration `008` harus diterapkan pada environment target sebelum runtime Phase 6
+diaktifkan.
+
 ## Scope
 
-- CTA Pesan Sekarang;
-- server validation package;
-- promo calculation;
-- booking draft;
-- secure public token;
-- expiry;
-- snapshot price;
-- booking summary.
+- [x] CTA Pesan Sekarang;
+- [x] server validation package;
+- [x] promo calculation;
+- [x] booking draft;
+- [x] secure public token;
+- [x] expiry;
+- [x] snapshot price;
+- [x] booking summary.
 
 ## QA Kritis
 
-- client price tampering tidak mengubah total;
-- expired draft;
-- package inactive;
-- invalid traveler count;
-- promo expiry.
+- [x] client price tampering tidak mengubah total;
+- [x] expired draft;
+- [x] package inactive;
+- [x] invalid traveler count;
+- [x] promo expiry.
+
+Implementasi dan hasil validasi dicatat pada
+[`30-phase-6-booking-draft-price-snapshot.md`](30-phase-6-booking-draft-price-snapshot.md).
 
 ---
 

@@ -14,6 +14,8 @@ Seluruh primitive UI menggunakan shadcn/Radix sesuai `project-guidelines.md`.
 - status tidak disampaikan hanya lewat warna—selalu ada label/icon/text;
 - mobile-first;
 - dark mode tetap terbaca bila diaktifkan.
+- gunakan link unsplash dahulu jika butuh gambar, dan jika sudah ada, nanti akan diganti dengan gambar dari admin CMS.
+
 
 ## Public Layout
 
@@ -24,6 +26,7 @@ Seluruh primitive UI menggunakan shadcn/Radix sesuai `project-guidelines.md`.
 - menu mobile memakai Sheet;
 - active state terlihat;
 - sticky hanya bila tidak mengganggu ruang mobile.
+- hamburger button ada di sebelah kanan, ketika tampilan mobile
 
 ### Card Paket
 

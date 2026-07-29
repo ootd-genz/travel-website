@@ -10,6 +10,13 @@ Urutan Phase 2:
 3. `003_enable_rls_and_private_storage.sql`
 4. `004_seed_business_settings.sql`
 
+Lanjutan:
+
+5. `005_create_admin_auth_security.sql` — rate limit dan audit autentikasi admin.
+6. `006_create_admin_cms_foundations.sql` — audit mutation CMS dan bucket media publik yang hanya dapat ditulis server.
+7. `007_expose_public_site_settings.sql` — RPC read-only untuk branding, kontak publik, dan footer.
+8. `008_add_booking_departure_snapshot.sql` — snapshot immutable untuk opsi keberangkatan yang dipilih saat draft dibuat.
+
 ## Cara menerapkan
 
 - Terapkan migration satu per satu sesuai nomor pada environment yang dituju.
