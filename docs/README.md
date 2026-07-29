@@ -88,6 +88,10 @@ Dikonfirmasi / Ditolak / Dibatalkan / Selesai
 | `28-phase-5-public-content-pages.md` | Implementasi halaman publik, data published, cache/revalidation, responsive UI, dan QA Phase 5 |
 | `29-bali-demo-data.md` | Seed data demo Travel Bali, cakupan konten, gambar Unsplash, dan cara verifikasi Supabase |
 | `30-phase-6-booking-draft-price-snapshot.md` | Implementasi draft booking, kalkulasi promo, token aman, expiry, snapshot harga, dan QA Phase 6 |
+| `31-phase-7-transfer-customer-proof.md` | Implementasi instruksi transfer, form customer, bukti private, submit atomik, success page, dan QA Phase 7 |
+| `32-phase-8-admin-booking-management.md` | Implementasi tabel/filter booking, detail, signed proof, transisi status atomik, audit, dan counter dashboard |
+| `33-phase-9-whatsapp-notification.md` | Implementasi adapter Meta Cloud API, formatter pesan, delivery log idempotent, timeout/error mapping, dan retry admin |
+| `34-phase-10-seo-accessibility-performance.md` | Implementasi metadata/canonical/OG, sitemap/robots, audit WCAG, optimasi image/JS, performance budget, dan baseline Lighthouse |
 | `roadmap.md` | Tahapan setup sampai production & QA |
 | `project-guidelines.md` | Salinan guideline sumber dari lampiran |
 

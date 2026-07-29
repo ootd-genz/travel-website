@@ -17,6 +17,15 @@ Lanjutan:
 7. `007_expose_public_site_settings.sql` — RPC read-only untuk branding, kontak publik, dan footer.
 8. `008_add_booking_departure_snapshot.sql` — snapshot immutable untuk opsi keberangkatan yang dipilih saat draft dibuat.
 
+9. `009_submit_booking_atomically.sql` — RPC service-role-only untuk submit
+   booking, peserta, dan event secara atomik dengan row lock serta anti-submit
+   ganda.
+10. `010_admin_booking_management.sql` — RPC active-admin-only untuk transisi
+    status booking dan catatan admin secara atomik bersama audit event.
+11. `011_whatsapp_notification_delivery.sql` — RPC service-role-only untuk
+    claim/finalize delivery WhatsApp secara idempotent, lease request aktif,
+    batas tiga percobaan, dan backoff terkontrol.
+
 ## Cara menerapkan
 
 - Terapkan migration satu per satu sesuai nomor pada environment yang dituju.

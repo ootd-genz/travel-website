@@ -27,22 +27,22 @@
 ## Booking
 
 - [x] Harga snapshot dihitung server.
-- [ ] Rekening tampil: BCA 87654321.
-- [ ] Nama pemilik rekening berasal dari konfigurasi yang valid.
-- [ ] Pengunjung dapat mengisi data diri.
-- [ ] Bukti transfer wajib dan private.
-- [ ] Submit valid menghasilkan `waiting_verification`.
-- [ ] Double submit tidak membuat booking duplicate.
-- [ ] Success page menampilkan kode booking tanpa mengekspos file private.
+- [x] Rekening tampil: BCA 87654321.
+- [x] Nama pemilik rekening berasal dari konfigurasi yang valid.
+- [x] Pengunjung dapat mengisi data diri.
+- [x] Bukti transfer wajib dan private.
+- [x] Submit valid menghasilkan `waiting_verification`.
+- [x] Double submit tidak membuat booking duplicate.
+- [x] Success page menampilkan kode booking tanpa mengekspos file private.
 
 ## WhatsApp
 
-- [ ] Nomor tujuan default 6282261060675.
-- [ ] Pesan memuat nama customer, package, booking code, tanggal, jumlah traveler, total, status.
-- [ ] Pesan memuat link `/admin/bookings/{booking_id}` menggunakan base `APP_URL`.
-- [ ] WhatsApp hanya dipicu setelah booking tersimpan.
-- [ ] Kegagalan WhatsApp tidak membatalkan booking.
-- [ ] Retry tidak menimbulkan duplikasi tak terkendali.
+- [x] Nomor tujuan default 6282261060675.
+- [x] Pesan memuat nama customer, package, booking code, tanggal, jumlah traveler, total, status.
+- [x] Pesan memuat link `/admin/bookings/{booking_id}` menggunakan base `APP_URL`.
+- [x] WhatsApp hanya dipicu setelah booking tersimpan.
+- [x] Kegagalan WhatsApp tidak membatalkan booking.
+- [x] Retry tidak menimbulkan duplikasi tak terkendali.
 
 ## Admin
 
@@ -50,17 +50,17 @@
 - [ ] Tidak ada public signup.
 - [ ] Admin dapat login/logout.
 - [ ] Admin dapat mengelola content utama.
-- [ ] Admin dapat melihat booking dan bukti transfer.
-- [ ] Admin dapat confirm/reject/cancel/complete sesuai status transition.
-- [ ] Action booking memiliki audit/event.
+- [x] Admin dapat melihat booking dan bukti transfer.
+- [x] Admin dapat confirm/reject/cancel/complete sesuai status transition.
+- [x] Action booking memiliki audit/event.
 
 ## Security
 
 - [ ] Service role server-only.
 - [ ] RLS aktif dan diuji.
 - [ ] Booking private tidak dapat dibaca anon.
-- [ ] File upload tervalidasi.
-- [ ] Storage private.
+- [x] File upload tervalidasi.
+- [x] Storage private.
 - [ ] Rate limit endpoint sensitif.
 - [ ] No secret di Git/log/client.
 - [ ] Admin dan booking flow noindex.
@@ -68,11 +68,11 @@
 ## SEO & Accessibility
 
 - [x] Metadata unique public pages.
-- [ ] Sitemap dan robots valid.
+- [x] Sitemap dan robots valid.
 - [x] Satu H1 utama per content page.
 - [x] Alt image.
-- [ ] Keyboard/focus/labels diuji.
-- [ ] Target WCAG 2.2 AA untuk flow utama.
+- [x] Keyboard/focus/labels diuji.
+- [x] Target WCAG 2.2 AA untuk flow utama.
 
 ## Build & QA
 

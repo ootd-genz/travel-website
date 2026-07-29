@@ -14,12 +14,19 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   images: {
+    formats: ["image/avif", "image/webp"],
     remotePatterns: supabaseHostname
       ? [
           {
             protocol: "https",
             hostname: supabaseHostname,
             pathname: "/storage/v1/object/public/content-media/**",
+          },
+          {
+            protocol: "https",
+            hostname: supabaseHostname,
+            pathname:
+              "/storage/v1/object/sign/booking-transfer-proofs/**",
           },
           {
             protocol: "https",

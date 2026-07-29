@@ -13,16 +13,22 @@
     "test:phase4:static": "node --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/validate-phase-4.mjs",
     "test:phase5:static": "node scripts/validate-phase-5.mjs",
     "test:phase6": "node --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/validate-phase-6.mjs",
+    "test:phase7": "node --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/validate-phase-7.mjs",
+    "test:phase8": "node --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/validate-phase-8.mjs",
+    "test:phase9": "node --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/validate-phase-9.mjs",
+    "test:phase10": "node scripts/validate-phase-10.mjs",
     "seed:bali-demo": "node scripts/seed-bali-demo.mjs",
     "setup:admin": "node --env-file=.env.local scripts/setup-single-admin.mjs",
-    "check": "npm run lint && npm run typecheck && npm run test:phase2:static && npm run test:phase3:static && npm run test:phase4:static && npm run test:phase5:static && npm run test:phase6 && npm run build"
+    "check": "npm run lint && npm run typecheck && npm run test:phase2:static && npm run test:phase3:static && npm run test:phase4:static && npm run test:phase5:static && npm run test:phase6 && npm run test:phase7 && npm run test:phase8 && npm run test:phase9 && npm run test:phase10 && npm run build"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.23",
+    "@radix-ui/react-select": "^2.3.7",
     "@radix-ui/react-slot": "^1.2.3",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.50.0",
     "@tanstack/react-query": "^5.80.0",
+    "@tanstack/react-table": "^8.21.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.468.0",

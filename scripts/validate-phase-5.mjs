@@ -21,7 +21,11 @@ const routes = [
 ];
 routes.forEach((route) => assert.equal(exists(route), true, `${route} harus tersedia`));
 
-const header = read("src/components/common/site-header.tsx");
+const header = [
+  read("src/components/common/site-header.tsx"),
+  read("src/components/common/site-navigation.tsx"),
+  read("src/components/common/site-mobile-menu.tsx"),
+].join("\n");
 const menuLabels = ["Home", "Blog", "Activities", "Destination", "Trip Types"];
 let previousIndex = -1;
 for (const label of menuLabels) {
@@ -29,7 +33,7 @@ for (const label of menuLabels) {
   assert.ok(index > previousIndex, `Urutan navigasi harus memuat ${label}`);
   previousIndex = index;
 }
-assert.match(header, /SheetTrigger/);
+assert.match(header, /<Sheet|aria-haspopup="dialog"/);
 assert.match(header, /aria-current/);
 assert.match(header, /href="\/"/);
 

@@ -27,12 +27,20 @@ Nama persis mengikuti provider yang dipilih. Contoh konseptual:
 ```text
 WHATSAPP_PROVIDER=meta_cloud_api
 WHATSAPP_API_BASE_URL=
+WHATSAPP_GRAPH_API_VERSION=
 WHATSAPP_ACCESS_TOKEN=
 WHATSAPP_PHONE_NUMBER_ID=
 WHATSAPP_ADMIN_NUMBER=6282261060675
+WHATSAPP_TEMPLATE_NAME=booking_waiting_verification
+WHATSAPP_TEMPLATE_LANGUAGE=id
 ```
 
 Access token tidak boleh `NEXT_PUBLIC_*`.
+Versi Graph API harus dipin eksplisit (format `vN.N`) dan diperbarui secara
+terkontrol sebelum versi tersebut dihentikan Meta.
+Template harus dibuat/disetujui di WhatsApp Manager dengan tujuh parameter body
+berurutan: nama customer, paket, kode booking, tanggal keberangkatan, jumlah
+traveler, total transfer, dan deep link admin.
 
 ## Business Defaults
 

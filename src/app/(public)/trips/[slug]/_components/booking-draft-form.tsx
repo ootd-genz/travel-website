@@ -11,7 +11,13 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const INITIAL_BOOKING_DRAFT_STATE: BookingDraftActionState = {
   message: null,
@@ -65,48 +71,52 @@ export function BookingDraftForm({
         <p id="traveler-help" className="text-xs text-muted-foreground">
           Kapasitas paket {minParticipants}–{maxParticipants} traveler.
         </p>
-        {state.fieldErrors.travelerCount?.map((message) => (
-          <p
-            id="traveler-error"
-            key={message}
-            className="text-xs text-destructive"
-            role="alert"
-          >
-            {message}
-          </p>
-        ))}
+        {state.fieldErrors.travelerCount?.length ? (
+          <div id="traveler-error" className="grid gap-1" role="alert">
+            {state.fieldErrors.travelerCount.map((message) => (
+              <p key={message} className="text-xs text-destructive">
+                {message}
+              </p>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       {departureOptions.length > 0 ? (
         <div className="mt-4 grid gap-2">
           <Label htmlFor="departureOption">Pilihan keberangkatan</Label>
           <Select
-            id="departureOption"
             name="departureOption"
-            defaultValue=""
             required
-            aria-invalid={Boolean(state.fieldErrors.departureOption)}
-            aria-describedby="departure-error"
           >
-            <option value="" disabled>
-              Pilih keberangkatan
-            </option>
-            {departureOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </Select>
-          {state.fieldErrors.departureOption?.map((message) => (
-            <p
-              id="departure-error"
-              key={message}
-              className="text-xs text-destructive"
-              role="alert"
+            <SelectTrigger
+              id="departureOption"
+              aria-invalid={Boolean(state.fieldErrors.departureOption)}
+              aria-describedby={
+                state.fieldErrors.departureOption?.length
+                  ? "departure-error"
+                  : undefined
+              }
             >
-              {message}
-            </p>
-          ))}
+              <SelectValue placeholder="Pilih keberangkatan" />
+            </SelectTrigger>
+            <SelectContent>
+              {departureOptions.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {state.fieldErrors.departureOption?.length ? (
+            <div id="departure-error" className="grid gap-1" role="alert">
+              {state.fieldErrors.departureOption.map((message) => (
+                <p key={message} className="text-xs text-destructive">
+                  {message}
+                </p>
+              ))}
+            </div>
+          ) : null}
         </div>
       ) : null}
 

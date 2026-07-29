@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
+import { NativeSelect as Select } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { INITIAL_CMS_ACTION_STATE, type CmsRelationOptions, type CmsResource } from "@/types/cms";
 

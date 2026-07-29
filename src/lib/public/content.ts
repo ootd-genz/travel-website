@@ -169,26 +169,84 @@ function assertQuery(label: string, error: { code?: string; message?: string } |
   if (error) throw new Error(`${label} tidak dapat dimuat${error.code ? ` (${error.code})` : ""}.`);
 }
 
-async function loadCatalog(): Promise<PublicCatalog> {
-  if (!hasSupabasePublicEnv()) return { destinations: [], activities: [], tripTypes: [], trips: [], blogPosts: [], promotions: [] };
-  const client = publicClient();
-  const [destinations, activities, tripTypes, trips, posts, promotions] = await Promise.all([
-    client.from("destinations").select(destinationFields).order("name").limit(100),
-    client.from("activities").select(activityFields).order("name").limit(100),
-    client.from("trip_types").select(tripTypeFields).order("sort_order").order("name").limit(100),
-    client.from("trips").select(tripFields).order("published_at", { ascending: false }).limit(100),
-    client.from("blog_posts").select(blogFields).order("published_at", { ascending: false }).limit(100),
-    client.from("promotions").select("id,name,discount_type,discount_value,starts_at,ends_at,terms,promotion_trips(trip_id)").order("starts_at", { ascending: false }).limit(50),
-  ]);
-  [["Destinasi", destinations.error], ["Aktivitas", activities.error], ["Trip type", tripTypes.error], ["Paket", trips.error], ["Blog", posts.error], ["Promo", promotions.error]].forEach(([label, error]) => assertQuery(String(label), error as { code?: string } | null));
-  return {
-    destinations: destinationRowSchema.array().parse(destinations.data ?? []).map(mapDestination),
-    activities: activityRowSchema.array().parse(activities.data ?? []).map(mapActivity),
-    tripTypes: tripTypeRowSchema.array().parse(tripTypes.data ?? []).map(mapTripType),
-    trips: tripRowSchema.array().parse(trips.data ?? []).map(mapTrip),
-    blogPosts: blogRowSchema.array().parse(posts.data ?? []).map(mapPost),
-    promotions: promotionRowSchema.array().parse(promotions.data ?? []).map((row): PublicPromotion => ({ id: row.id, name: row.name, discountType: row.discount_type, discountValue: row.discount_value, startsAt: row.starts_at, endsAt: row.ends_at, terms: row.terms, tripIds: row.promotion_trips.map((item) => item.trip_id) })),
-  };
+async function loadDestinations() {
+  if (!hasSupabasePublicEnv()) return [];
+  const { data, error } = await publicClient()
+    .from("destinations")
+    .select(destinationFields)
+    .order("name")
+    .limit(100);
+  assertQuery("Destinasi", error);
+  return destinationRowSchema.array().parse(data ?? []).map(mapDestination);
+}
+
+async function loadActivities() {
+  if (!hasSupabasePublicEnv()) return [];
+  const { data, error } = await publicClient()
+    .from("activities")
+    .select(activityFields)
+    .order("name")
+    .limit(100);
+  assertQuery("Aktivitas", error);
+  return activityRowSchema.array().parse(data ?? []).map(mapActivity);
+}
+
+async function loadTripTypes() {
+  if (!hasSupabasePublicEnv()) return [];
+  const { data, error } = await publicClient()
+    .from("trip_types")
+    .select(tripTypeFields)
+    .order("sort_order")
+    .order("name")
+    .limit(100);
+  assertQuery("Trip type", error);
+  return tripTypeRowSchema.array().parse(data ?? []).map(mapTripType);
+}
+
+async function loadTrips() {
+  if (!hasSupabasePublicEnv()) return [];
+  const { data, error } = await publicClient()
+    .from("trips")
+    .select(tripFields)
+    .order("published_at", { ascending: false })
+    .limit(100);
+  assertQuery("Paket", error);
+  return tripRowSchema.array().parse(data ?? []).map(mapTrip);
+}
+
+async function loadBlogPosts() {
+  if (!hasSupabasePublicEnv()) return [];
+  const { data, error } = await publicClient()
+    .from("blog_posts")
+    .select(blogFields)
+    .order("published_at", { ascending: false })
+    .limit(100);
+  assertQuery("Blog", error);
+  return blogRowSchema.array().parse(data ?? []).map(mapPost);
+}
+
+async function loadPromotions() {
+  if (!hasSupabasePublicEnv()) return [];
+  const { data, error } = await publicClient()
+    .from("promotions")
+    .select(
+      "id,name,discount_type,discount_value,starts_at,ends_at,terms,promotion_trips(trip_id)",
+    )
+    .order("starts_at", { ascending: false })
+    .limit(50);
+  assertQuery("Promo", error);
+  return promotionRowSchema.array().parse(data ?? []).map(
+    (row): PublicPromotion => ({
+      id: row.id,
+      name: row.name,
+      discountType: row.discount_type,
+      discountValue: row.discount_value,
+      startsAt: row.starts_at,
+      endsAt: row.ends_at,
+      terms: row.terms,
+      tripIds: row.promotion_trips.map((item) => item.trip_id),
+    }),
+  );
 }
 
 async function loadHomepage() {
@@ -217,15 +275,66 @@ async function loadSiteSettings(): Promise<PublicSiteSettings> {
   return { brandName: parsed.data.brand_name, logoPath: parsed.data.logo_path, publicWhatsapp: parsed.data.public_whatsapp, email: parsed.data.email, address: parsed.data.address, footerText: parsed.data.footer_text, socialLinks: Object.fromEntries(Object.entries(parsed.data.social_links).filter((entry): entry is [string, string] => Boolean(entry[1]))) };
 }
 
-export const getPublicCatalog = unstable_cache(loadCatalog, ["public-catalog-v1"], { revalidate: CACHE_SECONDS, tags: [PUBLIC_CACHE_TAGS.trips, PUBLIC_CACHE_TAGS.destinations, PUBLIC_CACHE_TAGS.activities, PUBLIC_CACHE_TAGS.tripTypes, PUBLIC_CACHE_TAGS.blog, PUBLIC_CACHE_TAGS.promotions] });
+export const getPublicDestinations = unstable_cache(
+  loadDestinations,
+  ["public-destinations-v2"],
+  { revalidate: CACHE_SECONDS, tags: [PUBLIC_CACHE_TAGS.destinations] },
+);
+export const getPublicActivities = unstable_cache(
+  loadActivities,
+  ["public-activities-v2"],
+  { revalidate: CACHE_SECONDS, tags: [PUBLIC_CACHE_TAGS.activities] },
+);
+export const getPublicTripTypes = unstable_cache(
+  loadTripTypes,
+  ["public-trip-types-v2"],
+  { revalidate: CACHE_SECONDS, tags: [PUBLIC_CACHE_TAGS.tripTypes] },
+);
+export const getPublicTrips = unstable_cache(
+  loadTrips,
+  ["public-trips-v2"],
+  { revalidate: CACHE_SECONDS, tags: [PUBLIC_CACHE_TAGS.trips] },
+);
+export const getPublicBlogPosts = unstable_cache(
+  loadBlogPosts,
+  ["public-blog-v2"],
+  { revalidate: CACHE_SECONDS, tags: [PUBLIC_CACHE_TAGS.blog] },
+);
+export const getPublicPromotions = unstable_cache(
+  loadPromotions,
+  ["public-promotions-v2"],
+  { revalidate: CACHE_SECONDS, tags: [PUBLIC_CACHE_TAGS.promotions] },
+);
+
+export async function getPublicCatalog(): Promise<PublicCatalog> {
+  const [destinations, activities, tripTypes, trips, blogPosts, promotions] =
+    await Promise.all([
+      getPublicDestinations(),
+      getPublicActivities(),
+      getPublicTripTypes(),
+      getPublicTrips(),
+      getPublicBlogPosts(),
+      getPublicPromotions(),
+    ]);
+
+  return {
+    destinations,
+    activities,
+    tripTypes,
+    trips,
+    blogPosts,
+    promotions,
+  };
+}
+
 export const getPublicHomepage = unstable_cache(loadHomepage, ["public-home-v1"], { revalidate: CACHE_SECONDS, tags: [PUBLIC_CACHE_TAGS.home] });
 export const getPublicSiteSettings = unstable_cache(loadSiteSettings, ["public-layout-v1"], { revalidate: CACHE_SECONDS, tags: [PUBLIC_CACHE_TAGS.layout] });
 
-export async function getPublicTrip(slug: string) { return (await getPublicCatalog()).trips.find((item) => item.slug === slug) ?? null; }
-export async function getPublicDestination(slug: string) { return (await getPublicCatalog()).destinations.find((item) => item.slug === slug) ?? null; }
-export async function getPublicActivity(slug: string) { return (await getPublicCatalog()).activities.find((item) => item.slug === slug) ?? null; }
-export async function getPublicTripType(slug: string) { return (await getPublicCatalog()).tripTypes.find((item) => item.slug === slug) ?? null; }
-export async function getPublicBlogPost(slug: string) { return (await getPublicCatalog()).blogPosts.find((item) => item.slug === slug) ?? null; }
+export async function getPublicTrip(slug: string) { return (await getPublicTrips()).find((item) => item.slug === slug) ?? null; }
+export async function getPublicDestination(slug: string) { return (await getPublicDestinations()).find((item) => item.slug === slug) ?? null; }
+export async function getPublicActivity(slug: string) { return (await getPublicActivities()).find((item) => item.slug === slug) ?? null; }
+export async function getPublicTripType(slug: string) { return (await getPublicTripTypes()).find((item) => item.slug === slug) ?? null; }
+export async function getPublicBlogPost(slug: string) { return (await getPublicBlogPosts()).find((item) => item.slug === slug) ?? null; }
 
 export function publicMediaUrl(path: string | null | undefined) {
   if (!path || !hasSupabasePublicEnv()) return null;

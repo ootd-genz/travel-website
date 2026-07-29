@@ -28,7 +28,7 @@ const serverEnvSchema = publicEnvSchema.extend({
     .number()
     .int()
     .min(1)
-    .max(10 * 1024 * 1024),
+    .max(5 * 1024 * 1024),
   TRANSFER_PROOF_ALLOWED_TYPES: z
     .string()
     .transform((value) => value.split(",").map((item) => item.trim()))
@@ -41,8 +41,41 @@ const serverEnvSchema = publicEnvSchema.extend({
   BANK_ACCOUNT_HOLDER: z.string().trim().min(2).max(100),
 });
 
+const whatsappApiBaseUrlSchema = z.string().url().refine(
+  (value) => {
+    const url = new URL(value);
+
+    return (
+      url.protocol === "https:" &&
+      url.hostname === "graph.facebook.com" &&
+      url.pathname === "/" &&
+      !url.search &&
+      !url.hash
+    );
+  },
+  {
+    message:
+      "WHATSAPP_API_BASE_URL harus memakai origin HTTPS graph.facebook.com.",
+  },
+);
+
+const whatsappEnvSchema = z.object({
+  APP_URL: appOriginSchema,
+  WHATSAPP_PROVIDER: z.literal("meta_cloud_api"),
+  WHATSAPP_API_BASE_URL: whatsappApiBaseUrlSchema,
+  WHATSAPP_GRAPH_API_VERSION: z.string().regex(/^v[1-9]\d*\.\d+$/),
+  WHATSAPP_ACCESS_TOKEN: z.string().min(1),
+  WHATSAPP_PHONE_NUMBER_ID: z.string().regex(/^\d{5,30}$/),
+  WHATSAPP_ADMIN_NUMBER: z.string().regex(/^[1-9][0-9]{7,14}$/),
+  WHATSAPP_TEMPLATE_NAME: z.string().regex(/^[a-z0-9_]{1,512}$/),
+  WHATSAPP_TEMPLATE_LANGUAGE: z
+    .string()
+    .regex(/^[a-z]{2,3}(?:_[A-Z]{2})?$/),
+});
+
 export type PublicEnv = z.infer<typeof publicEnvSchema>;
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
+export type WhatsAppEnv = z.infer<typeof whatsappEnvSchema>;
 
 export function hasSupabasePublicEnv() {
   return Boolean(
@@ -74,5 +107,19 @@ export function getServerEnv(): ServerEnv {
     BANK_NAME: process.env.BANK_NAME,
     BANK_ACCOUNT_NUMBER: process.env.BANK_ACCOUNT_NUMBER,
     BANK_ACCOUNT_HOLDER: process.env.BANK_ACCOUNT_HOLDER,
+  });
+}
+
+export function getWhatsAppEnv(): WhatsAppEnv {
+  return whatsappEnvSchema.parse({
+    APP_URL: process.env.APP_URL,
+    WHATSAPP_PROVIDER: process.env.WHATSAPP_PROVIDER,
+    WHATSAPP_API_BASE_URL: process.env.WHATSAPP_API_BASE_URL,
+    WHATSAPP_GRAPH_API_VERSION: process.env.WHATSAPP_GRAPH_API_VERSION,
+    WHATSAPP_ACCESS_TOKEN: process.env.WHATSAPP_ACCESS_TOKEN,
+    WHATSAPP_PHONE_NUMBER_ID: process.env.WHATSAPP_PHONE_NUMBER_ID,
+    WHATSAPP_ADMIN_NUMBER: process.env.WHATSAPP_ADMIN_NUMBER,
+    WHATSAPP_TEMPLATE_NAME: process.env.WHATSAPP_TEMPLATE_NAME,
+    WHATSAPP_TEMPLATE_LANGUAGE: process.env.WHATSAPP_TEMPLATE_LANGUAGE,
   });
 }

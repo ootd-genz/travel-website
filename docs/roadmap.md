@@ -224,99 +224,129 @@ Implementasi dan hasil validasi dicatat pada
 
 # Phase 7 — Transfer Instruction + Customer Form + Proof Upload
 
+**Status implementasi: selesai dan diverifikasi lokal pada 29 Juli 2026.**
+Migration `009` harus diterapkan pada environment target sebelum submit Phase 7
+diaktifkan.
+
 ## Scope
 
-- step booking;
-- BCA 87654321;
-- account holder from config;
-- exact total;
-- data diri;
-- transfer metadata;
-- proof upload private;
-- submit validation;
-- cleanup orphan file;
-- status `waiting_verification`;
-- success page.
+- [x] step booking;
+- [x] BCA 87654321;
+- [x] account holder from config;
+- [x] exact total;
+- [x] data diri;
+- [x] transfer metadata;
+- [x] proof upload private;
+- [x] submit validation;
+- [x] cleanup orphan file;
+- [x] status `waiting_verification`;
+- [x] success page.
 
 ## QA Kritis
 
-- oversized file;
-- invalid file type;
-- upload fail;
-- DB fail after upload;
-- duplicate submit;
-- draft expired during submit;
-- proof not publicly accessible.
+- [x] oversized file;
+- [x] invalid file type;
+- [x] upload fail;
+- [x] DB fail after upload;
+- [x] duplicate submit;
+- [x] draft expired during submit;
+- [x] proof not publicly accessible.
+
+Implementasi dan hasil validasi dicatat pada
+[`31-phase-7-transfer-customer-proof.md`](31-phase-7-transfer-customer-proof.md).
 
 ---
 
 # Phase 8 — Admin Booking Management
 
+**Status implementasi: selesai dan diverifikasi lokal pada 29 Juli 2026.**
+Migration `010` harus diterapkan pada environment target sebelum mutation status
+dan catatan admin Phase 8 diaktifkan.
+
 ## Scope
 
-- booking table + filters;
-- booking detail;
-- signed URL proof;
-- confirm/reject/cancel/complete;
-- booking history/events;
-- dashboard pending counter.
+- [x] booking table + filters;
+- [x] booking detail;
+- [x] signed URL proof;
+- [x] confirm/reject/cancel/complete;
+- [x] booking history/events;
+- [x] dashboard pending counter.
 
 ## QA
 
-- valid state transition;
-- invalid transition rejected server-side;
-- audit actor/time;
-- responsive table/detail.
+- [x] valid state transition;
+- [x] invalid transition rejected server-side;
+- [x] audit actor/time;
+- [x] responsive table/detail.
+
+Implementasi, kontrol keamanan, hasil QA lokal, dan langkah aktivasi runtime
+dicatat pada
+[`32-phase-8-admin-booking-management.md`](32-phase-8-admin-booking-management.md).
 
 ---
 
 # Phase 9 — WhatsApp Notification
 
+**Status implementasi: selesai dan diverifikasi lokal pada 29 Juli 2026.**
+Migration `011` serta credential Meta yang sah harus diaktifkan pada environment
+target sebelum pengiriman runtime diuji end-to-end.
+
 ## Scope
 
-- provider adapter;
-- message formatter;
-- destination 6282261060675;
-- dashboard deep link;
-- delivery log;
-- idempotency;
-- failure/retry UI.
+- [x] provider adapter;
+- [x] message formatter;
+- [x] destination 6282261060675;
+- [x] dashboard deep link;
+- [x] delivery log;
+- [x] idempotency;
+- [x] failure/retry UI.
 
 ## QA
 
-- pesan field benar;
-- link admin benar;
-- provider timeout;
-- provider 4xx/5xx;
-- booking tetap tersimpan saat WA gagal;
-- retry tidak duplicate berlebihan.
+- [x] pesan field benar;
+- [x] link admin benar;
+- [x] provider timeout;
+- [x] provider 4xx/5xx;
+- [x] booking tetap tersimpan saat WA gagal;
+- [x] retry tidak duplicate berlebihan.
+
+Implementasi, reliability control, hasil QA lokal, dan langkah aktivasi runtime
+dicatat pada
+[`33-phase-9-whatsapp-notification.md`](33-phase-9-whatsapp-notification.md).
 
 ---
 
 # Phase 10 — SEO, Accessibility & Performance
 
+**Status: selesai dan diverifikasi lokal pada 29 Juli 2026.**
+Canonical production dan field Core Web Vitals tetap mengikuti domain production
+yang diaktifkan pada Phase 13.
+
 ## Scope
 
-- Metadata API;
-- canonical;
-- OG;
-- sitemap;
-- robots;
-- noindex admin/booking;
-- accessibility audit;
-- Core Web Vitals baseline;
-- image optimization;
-- code splitting/lazy load berat.
+- [x] Metadata API;
+- [x] canonical;
+- [x] OG;
+- [x] sitemap;
+- [x] robots;
+- [x] noindex admin/booking;
+- [x] accessibility audit;
+- [x] Core Web Vitals baseline;
+- [x] image optimization;
+- [x] code splitting/lazy load berat.
 
 ## QA
 
-- keyboard;
-- focus;
-- labels;
-- contrast;
-- H1;
-- sitemap/canonical;
-- mobile performance.
+- [x] keyboard;
+- [x] focus;
+- [x] labels;
+- [x] contrast;
+- [x] H1;
+- [x] sitemap/canonical;
+- [x] mobile performance.
+
+Implementasi, performance budget, dan hasil audit dicatat pada
+[`34-phase-10-seo-accessibility-performance.md`](34-phase-10-seo-accessibility-performance.md).
 
 ---
 

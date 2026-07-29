@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 import { publicMediaUrl } from "@/lib/public/content";
 import type { PublicActivity, PublicBlogPost, PublicDestination, PublicTrip, PublicTripType } from "@/types/public-content";
 
-export function PublicImage({ path, alt, className, priority = false, sizes = "(max-width: 768px) 100vw, 33vw" }: { path: string | null; alt: string; className?: string; priority?: boolean; sizes?: string }) {
+export function PublicImage({ path, alt, className, priority = false, sizes = "(max-width: 768px) calc(100vw - 2rem), 33vw" }: { path: string | null; alt: string; className?: string; priority?: boolean; sizes?: string }) {
   const src = publicMediaUrl(path);
   return (
     <div className={cn("relative overflow-hidden bg-[linear-gradient(145deg,color-mix(in_oklab,var(--primary)_18%,var(--secondary)),var(--muted))]", className)}>

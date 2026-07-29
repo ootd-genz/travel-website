@@ -3,9 +3,20 @@ import { type NextRequest, NextResponse } from "next/server";
 
 import { getPublicEnv, hasSupabasePublicEnv } from "@/configs/env";
 
+function applyPrivateRouteHeaders(response: NextResponse, pathname: string) {
+  if (pathname.startsWith("/admin") || pathname.startsWith("/booking/")) {
+    response.headers.set("Cache-Control", "private, no-store");
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
+
+  return response;
+}
+
 export async function updateSession(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
   if (!hasSupabasePublicEnv()) {
-    return NextResponse.next({ request });
+    return applyPrivateRouteHeaders(NextResponse.next({ request }), pathname);
   }
 
   const env = getPublicEnv();
@@ -30,7 +41,6 @@ export async function updateSession(request: NextRequest) {
   );
 
   const { data, error } = await supabase.auth.getClaims();
-  const pathname = request.nextUrl.pathname;
   const isProtectedAdminRoute =
     pathname.startsWith("/admin") &&
     pathname !== "/admin/login" &&
@@ -51,10 +61,5 @@ export async function updateSession(request: NextRequest) {
     return redirectResponse;
   }
 
-  if (pathname.startsWith("/admin")) {
-    response.headers.set("Cache-Control", "private, no-store");
-    response.headers.set("X-Robots-Tag", "noindex, nofollow");
-  }
-
-  return response;
+  return applyPrivateRouteHeaders(response, pathname);
 }

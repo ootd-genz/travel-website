@@ -45,6 +45,29 @@
   --ring: oklch(0.69 0.11 195);
 }
 
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --background: oklch(0.17 0.02 230);
+    --foreground: oklch(0.96 0.008 210);
+    --card: oklch(0.21 0.022 230);
+    --card-foreground: oklch(0.96 0.008 210);
+    --popover: oklch(0.21 0.022 230);
+    --popover-foreground: oklch(0.96 0.008 210);
+    --primary: oklch(0.72 0.13 195);
+    --primary-foreground: oklch(0.16 0.025 220);
+    --secondary: oklch(0.28 0.025 220);
+    --secondary-foreground: oklch(0.95 0.01 210);
+    --muted: oklch(0.25 0.02 225);
+    --muted-foreground: oklch(0.7 0.02 215);
+    --accent: oklch(0.32 0.045 75);
+    --accent-foreground: oklch(0.94 0.03 80);
+    --destructive: oklch(0.68 0.2 25);
+    --border: oklch(1 0 0 / 12%);
+    --input: oklch(1 0 0 / 16%);
+    --ring: oklch(0.69 0.11 195);
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -88,6 +111,29 @@ body {
 
 ::selection {
   background: color-mix(in oklab, var(--primary) 24%, transparent);
+}
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  transform: translateY(-160%);
+  border-radius: var(--radius);
+  background: var(--foreground);
+  color: var(--background);
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  transition: transform 150ms ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,0 +1,20 @@
+{
+  "context": "mobile",
+  "coreWebVitalsTargets": {
+    "largestContentfulPaintMs": 2500,
+    "interactionToNextPaintMs": 200,
+    "cumulativeLayoutShift": 0.1
+  },
+  "mobileLabBudget": {
+    "largestContentfulPaintMs": 4000,
+    "totalBlockingTimeMs": 300,
+    "cumulativeLayoutShift": 0.1,
+    "performanceScore": 0.8,
+    "accessibilityScore": 0.95,
+    "seoScore": 0.95
+  },
+  "assets": {
+    "initialJavaScriptKb": 180,
+    "largestImageKb": 800
+  }
+}

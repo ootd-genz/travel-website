@@ -19,7 +19,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getPublicCatalog, getPublicTrip } from "@/lib/public/content";
+import { getPublicTrip, getPublicTrips, publicMediaUrl } from "@/lib/public/content";
+import { createPublicMetadata } from "@/lib/seo";
 
 import { BookingDraftForm } from "./_components/booking-draft-form";
 
@@ -28,10 +29,12 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const trip = await getPublicTrip((await params).slug);
   if (!trip) notFound();
-  return {
+  return createPublicMetadata({
     title: trip.seoTitle ?? trip.name,
     description: trip.seoDescription ?? trip.shortDescription,
-  };
+    path: `/trips/${trip.slug}`,
+    image: publicMediaUrl(trip.imagePath),
+  });
 }
 
 function TextSection({
@@ -61,13 +64,13 @@ function TextSection({
 
 export default async function TripDetailPage({ params }: Props) {
   const slug = (await params).slug;
-  const [trip, catalog] = await Promise.all([
+  const [trip, trips] = await Promise.all([
     getPublicTrip(slug),
-    getPublicCatalog(),
+    getPublicTrips(),
   ]);
   if (!trip) notFound();
 
-  const related = catalog.trips
+  const related = trips
     .filter(
       (item) =>
         item.id !== trip.id &&
