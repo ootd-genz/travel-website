@@ -3,6 +3,7 @@ import "server-only";
 import { createHmac } from "node:crypto";
 
 import { getServerEnv } from "@/configs/env";
+import { logger } from "@/lib/observability/logger";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export type AdminAuthEventType =
@@ -46,7 +47,6 @@ export async function writeAdminAuthEvent(event: AuditEvent) {
   });
 
   if (error) {
-    console.error("Gagal menulis audit autentikasi admin.", { code: error.code });
+    logger.error("auth.audit_write_failed", { code: error.code });
   }
 }
-

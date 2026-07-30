@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { sendBookingWaitingVerificationNotification } from "@/lib/notifications/whatsapp/service";
+import { logger } from "@/lib/observability/logger";
 import { createClient } from "@/lib/supabase/server";
 import {
   bookingAdminNotesSchema,
@@ -76,7 +77,7 @@ export async function transitionBookingStatusAction(
   });
 
   if (error) {
-    console.error("Transisi status booking gagal.", {
+    logger.error("admin.booking_transition_failed", {
       code: error.code,
       bookingId: parsed.data.bookingId,
     });
@@ -140,7 +141,7 @@ export async function updateBookingAdminNotesAction(
   });
 
   if (error) {
-    console.error("Penyimpanan catatan booking gagal.", {
+    logger.error("admin.booking_notes_failed", {
       code: error.code,
       bookingId: parsed.data.bookingId,
     });

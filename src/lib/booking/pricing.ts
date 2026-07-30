@@ -3,6 +3,7 @@ export type PriceUnit = "per_person" | "per_package";
 export type PromotionForPricing = {
   id: string;
   name: string;
+  code?: string | null;
   discountType: "percentage" | "fixed";
   discountValue: string | number;
   startsAt: string;
@@ -84,6 +85,7 @@ export function calculatePriceSnapshot(input: {
   priceUnit: PriceUnit;
   travelerCount: number;
   promotions: PromotionForPricing[];
+  promotionCode?: string | null;
   now?: Date;
 }): PriceSnapshot {
   if (!Number.isInteger(input.travelerCount) || input.travelerCount < 1) {
@@ -104,9 +106,17 @@ export function calculatePriceSnapshot(input: {
       ? unitPrice * BigInt(input.travelerCount)
       : unitPrice;
   const now = input.now ?? new Date();
+  const promotionCode = input.promotionCode?.trim().toUpperCase() || null;
 
   const candidates = input.promotions
-    .filter((promotion) => isPromotionValid(promotion, now))
+    .filter((promotion) => {
+      if (!isPromotionValid(promotion, now)) return false;
+
+      const candidateCode = promotion.code ?? null;
+      return promotionCode
+        ? candidateCode === promotionCode
+        : candidateCode === null;
+    })
     .map((promotion) => ({
       promotion,
       discount: promotionDiscount(subtotal, promotion),

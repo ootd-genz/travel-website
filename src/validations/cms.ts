@@ -9,6 +9,13 @@ const optionalText = (max: number) => z.string().trim().max(max).transform((valu
 const optionalNumber = z.preprocess((value) => value === "" ? null : value, z.coerce.number().nullable());
 const checkbox = z.preprocess((value) => value === "on" || value === "true", z.boolean());
 const relationIds = z.array(z.string().uuid()).max(100);
+const localDateTime = z.string().regex(
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/,
+  "Pilih tanggal dan waktu yang valid.",
+).refine(
+  (value) => !Number.isNaN(new Date(`${value}:00+07:00`).getTime()),
+  "Pilih tanggal dan waktu yang valid.",
+);
 
 export const commonCmsSchema = z.object({
   id: z.preprocess((value) => value || undefined, z.string().uuid().optional()),
@@ -99,8 +106,10 @@ export const blogSchema = z.object({
 });
 
 export const promotionSchema = z.object({
-  name: z.string().trim().min(2).max(120), discountType: z.enum(["percentage", "fixed"]),
-  discountValue: z.coerce.number().min(0), startsAt: z.string().min(1), endsAt: z.string().optional(),
+  name: z.string().trim().min(2).max(120),
+  code: z.string().trim().toUpperCase().max(32, "Kode promo maksimal 32 karakter.").refine((value) => !value || /^[A-Z0-9][A-Z0-9_-]{2,31}$/.test(value), "Gunakan 3–32 huruf, angka, tanda hubung, atau garis bawah.").transform((value) => value || null),
+  discountType: z.enum(["percentage", "fixed"]),
+  discountValue: z.coerce.number().min(0), startsAt: localDateTime, endsAt: localDateTime.optional(),
   isActive: checkbox, terms: optionalText(10_000), tripIds: relationIds,
 }).superRefine((value, context) => {
   if (value.discountType === "percentage" && value.discountValue > 100) context.addIssue({ code: z.ZodIssueCode.custom, path: ["discountValue"], message: "Diskon persen maksimum 100%." });

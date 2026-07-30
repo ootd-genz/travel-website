@@ -32,6 +32,7 @@ const tripRowSchema = z.object({
 const promotionRowSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
+  code: z.string().nullable(),
   discount_type: z.enum(["percentage", "fixed"]),
   discount_value: z.union([z.string(), z.number()]),
   starts_at: z.string().datetime({ offset: true }),
@@ -56,6 +57,7 @@ const bookingRowSchema = z.object({
   package_id: z.string().uuid(),
   package_name_snapshot: z.string(),
   promotion_name_snapshot: z.string().nullable(),
+  promotion_code_snapshot: z.string().nullable(),
   unit_price_snapshot: z.coerce.number(),
   price_unit_snapshot: z.enum(["per_person", "per_package"]),
   subtotal_amount_snapshot: z.coerce.number(),
@@ -76,6 +78,7 @@ export type BookingDraftSummary = {
   packageName: string;
   destinationName: string | null;
   promotionName: string | null;
+  promotionCode: string | null;
   unitPrice: number;
   priceUnit: PriceUnit;
   subtotalAmount: number;
@@ -92,6 +95,7 @@ export class BookingDraftError extends Error {
       | "package_unavailable"
       | "invalid_traveler_count"
       | "invalid_departure_option"
+      | "invalid_promo_code"
       | "unexpected",
   ) {
     super(code);
@@ -146,6 +150,7 @@ function mapPromotion(row: z.infer<typeof promotionRowSchema>): PromotionForPric
   return {
     id: row.id,
     name: row.name,
+    code: row.code,
     discountType: row.discount_type,
     discountValue: row.discount_value,
     startsAt: row.starts_at,
@@ -159,6 +164,7 @@ export async function createBookingDraft(input: {
   tripId: string;
   travelerCount: number;
   departureOption: string | null;
+  promoCode: string | null;
 }) {
   const client = createAdminClient();
   const now = new Date();
@@ -212,7 +218,7 @@ export async function createBookingDraft(input: {
     const { data: promotionData, error: promotionError } = await client
       .from("promotions")
       .select(
-        "id,name,discount_type,discount_value,starts_at,ends_at,is_active,updated_at",
+        "id,name,code,discount_type,discount_value,starts_at,ends_at,is_active,updated_at",
       )
       .in("id", promotionIds);
 
@@ -228,8 +234,12 @@ export async function createBookingDraft(input: {
     priceUnit: trip.price_unit,
     travelerCount: input.travelerCount,
     promotions,
+    promotionCode: input.promoCode,
     now,
   });
+  if (input.promoCode && !snapshot.promotion) {
+    throw new BookingDraftError("invalid_promo_code");
+  }
   const env = getServerEnv();
   const expiresAt = new Date(
     now.getTime() + env.BOOKING_DRAFT_TTL_MINUTES * 60_000,
@@ -249,6 +259,7 @@ export async function createBookingDraft(input: {
         promotion_id: snapshot.promotion?.id ?? null,
         package_name_snapshot: trip.name,
         promotion_name_snapshot: snapshot.promotion?.name ?? null,
+        promotion_code_snapshot: snapshot.promotion?.code ?? null,
         unit_price_snapshot: snapshot.unitPrice,
         price_unit_snapshot: trip.price_unit,
         subtotal_amount_snapshot: snapshot.subtotalAmount,
@@ -331,7 +342,7 @@ export async function getBookingDraftByToken(
   const { data, error } = await client
     .from("bookings")
     .select(
-      "id,booking_code,status,draft_expires_at,package_id,package_name_snapshot,promotion_name_snapshot,unit_price_snapshot,price_unit_snapshot,subtotal_amount_snapshot,discount_snapshot,traveler_count,total_amount_snapshot,currency_snapshot,departure_option_snapshot",
+      "id,booking_code,status,draft_expires_at,package_id,package_name_snapshot,promotion_name_snapshot,promotion_code_snapshot,unit_price_snapshot,price_unit_snapshot,subtotal_amount_snapshot,discount_snapshot,traveler_count,total_amount_snapshot,currency_snapshot,departure_option_snapshot",
     )
     .eq("public_token_hash", hashToken(parsedToken.data))
     .maybeSingle();
@@ -384,6 +395,7 @@ export async function getBookingDraftByToken(
         ? destination.name
         : null,
     promotionName: booking.promotion_name_snapshot,
+    promotionCode: booking.promotion_code_snapshot,
     unitPrice: booking.unit_price_snapshot,
     priceUnit: booking.price_unit_snapshot,
     subtotalAmount: booking.subtotal_amount_snapshot,

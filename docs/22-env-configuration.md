@@ -71,6 +71,18 @@ Nilai final ditetapkan saat implementation dan dicantumkan di `env.example` bila
 BOOKING_DRAFT_TTL_MINUTES=60
 ```
 
+## Observability
+
+```text
+OBSERVABILITY_SERVICE_NAME=travel-website
+OBSERVABILITY_LOG_LEVEL=info
+OBSERVABILITY_ERROR_WEBHOOK_URL=
+```
+
+Webhook bersifat opsional, wajib berupa HTTPS, dan hanya menerima payload error
+yang sudah direduksi/redact. Jika kosong, structured log JSON tetap ditulis ke log
+server/platform.
+
 ## Security
 
 Secret production disimpan pada secret manager/environment deployment, bukan Git.

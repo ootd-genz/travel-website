@@ -3,6 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { logger } from "@/lib/observability/logger";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -43,6 +44,7 @@ const bookingDetailRowSchema = z.object({
   package_id: z.string().uuid(),
   package_name_snapshot: z.string(),
   promotion_name_snapshot: z.string().nullable(),
+  promotion_code_snapshot: z.string().nullable(),
   unit_price_snapshot: z.coerce.number(),
   price_unit_snapshot: z.enum(["per_person", "per_package"]),
   subtotal_amount_snapshot: z.coerce.number(),
@@ -232,8 +234,24 @@ export async function getTransferProofSignedUrl(bookingId: string) {
     );
 
   if (error || !data?.signedUrl) {
-    console.error("Gagal membuat signed URL bukti transfer.", {
+    logger.error("admin.transfer_proof_signing_failed", {
       code: error?.name ?? "missing_signed_url",
+      bookingId: parsedId.data,
+    });
+    return {
+      url: null,
+      fileKind,
+      expiresInSeconds: TRANSFER_PROOF_SIGNED_URL_TTL_SECONDS,
+    } as const;
+  }
+
+  const { error: auditError } = await client.rpc(
+    "record_booking_proof_access",
+    { p_booking_id: parsedId.data },
+  );
+  if (auditError) {
+    logger.error("admin.transfer_proof_audit_failed", {
+      code: auditError.code,
       bookingId: parsedId.data,
     });
     return {
@@ -259,7 +277,7 @@ export async function getAdminBookingDetail(bookingId: string) {
   const { data, error } = await client
     .from("bookings")
     .select(
-      "id,booking_code,status,package_id,package_name_snapshot,promotion_name_snapshot,unit_price_snapshot,price_unit_snapshot,subtotal_amount_snapshot,discount_snapshot,traveler_count,total_amount_snapshot,currency_snapshot,departure_date,departure_option_snapshot,customer_name,customer_whatsapp,customer_email,customer_city,sender_bank_name,sender_account_name,declared_transfer_amount,transferred_at,transfer_proof_path,customer_notes,admin_notes,submitted_at,confirmed_at,created_at,updated_at",
+      "id,booking_code,status,package_id,package_name_snapshot,promotion_name_snapshot,promotion_code_snapshot,unit_price_snapshot,price_unit_snapshot,subtotal_amount_snapshot,discount_snapshot,traveler_count,total_amount_snapshot,currency_snapshot,departure_date,departure_option_snapshot,customer_name,customer_whatsapp,customer_email,customer_city,sender_bank_name,sender_account_name,declared_transfer_amount,transferred_at,transfer_proof_path,customer_notes,admin_notes,submitted_at,confirmed_at,created_at,updated_at",
     )
     .eq("id", parsedId.data)
     .maybeSingle();
@@ -314,6 +332,7 @@ export async function getAdminBookingDetail(bookingId: string) {
     packageId: booking.package_id,
     packageName: booking.package_name_snapshot,
     promotionName: booking.promotion_name_snapshot,
+    promotionCode: booking.promotion_code_snapshot,
     unitPrice: booking.unit_price_snapshot,
     priceUnit: booking.price_unit_snapshot,
     subtotalAmount: booking.subtotal_amount_snapshot,

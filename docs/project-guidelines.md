@@ -33,7 +33,7 @@ Dokumen ini menjadi acuan arsitektur, implementasi, keamanan, kualitas, dan pros
 
 ### Teknologi Utama
 
-- `next` 16.2.7 sebagai framework aplikasi.
+- `next` 16.2.12 sebagai framework aplikasi (patch keamanan Phase 11).
 - `react` 19.2.4 dan `react-dom` 19.2.4 untuk membangun UI.
 - `typescript` untuk type safety.
 - `tailwindcss` 4 untuk styling.

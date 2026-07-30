@@ -12,15 +12,21 @@ function applyPrivateRouteHeaders(response: NextResponse, pathname: string) {
   return response;
 }
 
-export async function updateSession(request: NextRequest) {
+export async function updateSession(
+  request: NextRequest,
+  requestHeaders = request.headers,
+) {
   const pathname = request.nextUrl.pathname;
 
+  const nextResponse = () =>
+    NextResponse.next({ request: { headers: requestHeaders } });
+
   if (!hasSupabasePublicEnv()) {
-    return applyPrivateRouteHeaders(NextResponse.next({ request }), pathname);
+    return applyPrivateRouteHeaders(nextResponse(), pathname);
   }
 
   const env = getPublicEnv();
-  let response = NextResponse.next({ request });
+  let response = nextResponse();
   const supabase = createServerClient(
     env.NEXT_PUBLIC_SUPABASE_URL,
     env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -31,7 +37,7 @@ export async function updateSession(request: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({ request });
+          response = nextResponse();
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options),
           );

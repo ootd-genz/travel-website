@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+export const dynamic = "force-dynamic";
+
 export default function AdminForbiddenPage() {
   return (
     <main className="grid min-h-screen place-items-center bg-muted/40 px-4 py-12">
@@ -38,4 +40,3 @@ export default function AdminForbiddenPage() {
     </main>
   );
 }
-

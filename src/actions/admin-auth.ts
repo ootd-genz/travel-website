@@ -11,6 +11,7 @@ import { consumeAdminLoginAttempt, resetAdminLoginAttempts } from "@/lib/auth/ra
 import { getSafeAdminRedirect } from "@/lib/auth/redirects";
 import { getAuthRequestContext } from "@/lib/auth/request-context";
 import { getAdminIdentity } from "@/lib/auth/require-admin";
+import { logger } from "@/lib/observability/logger";
 import { createClient } from "@/lib/supabase/server";
 import { adminLoginSchema } from "@/validations/auth";
 
@@ -44,7 +45,8 @@ export async function loginAdmin(
   }
 
   const { email, password, next } = parsed.data;
-  const { ipAddress } = await getAuthRequestContext();
+  const startedAt = Date.now();
+  const { ipAddress, requestId } = await getAuthRequestContext();
   const identifierHash = hashLoginIdentifier(email, ipAddress);
   const ipHash = hashIpAddress(ipAddress);
 
@@ -52,7 +54,13 @@ export async function loginAdmin(
 
   try {
     rateLimit = await consumeAdminLoginAttempt(identifierHash);
-  } catch {
+  } catch (error) {
+    logger.error("auth.login_rate_limit_unavailable", {
+      requestId,
+      action: "login_admin",
+      durationMs: Date.now() - startedAt,
+      error,
+    });
     return {
       message: "Login admin sedang tidak tersedia. Coba lagi beberapa saat.",
       fieldErrors: {},
@@ -65,6 +73,13 @@ export async function loginAdmin(
       identifierHash,
       ipHash,
       reasonCode: "attempt_limit_reached",
+    });
+    logger.warn("auth.login_rate_limited", {
+      requestId,
+      action: "login_admin",
+      status: "rate_limited",
+      durationMs: Date.now() - startedAt,
+      retryAfterSeconds: rateLimit.retry_after_seconds,
     });
 
     return {
@@ -86,6 +101,12 @@ export async function loginAdmin(
       ipHash,
       reasonCode: "invalid_credentials",
     });
+    logger.warn("auth.login_failed", {
+      requestId,
+      action: "login_admin",
+      status: "invalid_credentials",
+      durationMs: Date.now() - startedAt,
+    });
 
     return { message: GENERIC_LOGIN_ERROR, fieldErrors: {} };
   }
@@ -101,6 +122,13 @@ export async function loginAdmin(
       identifierHash,
       ipHash,
       reasonCode: "not_active_admin",
+    });
+    logger.warn("auth.login_access_denied", {
+      requestId,
+      action: "login_admin",
+      actorId: authUserId,
+      status: "forbidden",
+      durationMs: Date.now() - startedAt,
     });
     await supabase.auth.signOut({ scope: "local" });
 
@@ -118,10 +146,20 @@ export async function loginAdmin(
     ipHash,
   });
 
+  logger.info("auth.login_succeeded", {
+    requestId,
+    action: "login_admin",
+    actorId: identity.identity.authUserId,
+    status: "success",
+    durationMs: Date.now() - startedAt,
+  });
+
   redirect(getSafeAdminRedirect(next));
 }
 
 export async function logoutAdmin() {
+  const startedAt = Date.now();
+  const { requestId } = await getAuthRequestContext();
   const supabase = await createClient();
   const {
     data: { user },
@@ -136,6 +174,14 @@ export async function logoutAdmin() {
   await writeAdminAuthEvent({
     authUserId: user?.id ?? null,
     eventType: "logout",
+  });
+
+  logger.info("auth.logout_succeeded", {
+    requestId,
+    action: "logout_admin",
+    actorId: user?.id ?? null,
+    status: "success",
+    durationMs: Date.now() - startedAt,
   });
 
   redirect("/admin/login?loggedOut=1");

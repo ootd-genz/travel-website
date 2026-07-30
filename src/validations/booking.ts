@@ -13,6 +13,17 @@ export const createBookingDraftSchema = z.object({
     .max(200, "Opsi keberangkatan terlalu panjang.")
     .optional()
     .transform((value) => value || null),
+  promoCode: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .max(32, "Kode promo maksimal 32 karakter.")
+    .refine(
+      (value) => !value || /^[A-Z0-9][A-Z0-9_-]{2,31}$/.test(value),
+      "Kode promo terdiri dari 3–32 huruf, angka, tanda hubung, atau garis bawah.",
+    )
+    .optional()
+    .transform((value) => value || null),
 });
 
 export const publicBookingTokenSchema = z

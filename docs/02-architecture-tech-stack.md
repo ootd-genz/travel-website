@@ -4,7 +4,7 @@ Dokumen ini menurunkan `project-guidelines.md` menjadi keputusan arsitektur spes
 
 ## Tech Stack Wajib
 
-- Next.js `16.2.7` — App Router
+- Next.js `16.2.12` — App Router (patch keamanan Phase 11)
 - React / React DOM `19.2.4`
 - TypeScript
 - Tailwind CSS `4`

@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -289,12 +290,13 @@ export function BookingSubmissionForm({
               <Label htmlFor="transferredAt">
                 Waktu transfer <span className="font-normal">(opsional)</span>
               </Label>
-              <Input
+              <DatePicker
                 id="transferredAt"
                 name="transferredAt"
-                type="datetime-local"
-                aria-invalid={Boolean(state.fieldErrors.transferredAt)}
-                aria-describedby="transferredAt-help transferredAt-error"
+                withTime
+                placeholder="Pilih tanggal dan waktu transfer"
+                ariaInvalid={Boolean(state.fieldErrors.transferredAt)}
+                ariaDescribedBy="transferredAt-help transferredAt-error"
               />
               <p
                 id="transferredAt-help"

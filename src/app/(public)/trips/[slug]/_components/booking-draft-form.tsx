@@ -120,6 +120,34 @@ export function BookingDraftForm({
         </div>
       ) : null}
 
+      <div className="mt-4 grid gap-2">
+        <Label htmlFor="promoCode">Kode promo (opsional)</Label>
+        <Input
+          id="promoCode"
+          name="promoCode"
+          type="text"
+          autoComplete="off"
+          autoCapitalize="characters"
+          maxLength={32}
+          placeholder="Contoh: LIBURAN10"
+          className="uppercase"
+          aria-describedby="promo-help promo-error"
+          aria-invalid={Boolean(state.fieldErrors.promoCode)}
+        />
+        <p id="promo-help" className="text-xs text-muted-foreground">
+          Diskon akan diverifikasi bersama harga terbaru saat ringkasan dibuat.
+        </p>
+        {state.fieldErrors.promoCode?.length ? (
+          <div id="promo-error" className="grid gap-1" role="alert">
+            {state.fieldErrors.promoCode.map((message) => (
+              <p key={message} className="text-xs text-destructive">
+                {message}
+              </p>
+            ))}
+          </div>
+        ) : null}
+      </div>
+
       {state.message ? (
         <Alert
           className="mt-5 border-destructive/40 bg-destructive/5"

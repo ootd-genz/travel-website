@@ -248,6 +248,7 @@ export default async function BookingSummaryPage({
                     <dt>
                       Diskon
                       {draft.promotionName ? ` — ${draft.promotionName}` : ""}
+                      {draft.promotionCode ? ` (${draft.promotionCode})` : ""}
                     </dt>
                     <dd>
                       −{formatPrice(draft.discountAmount, draft.currency)}

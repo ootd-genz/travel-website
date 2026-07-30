@@ -92,6 +92,7 @@ Dikonfirmasi / Ditolak / Dibatalkan / Selesai
 | `32-phase-8-admin-booking-management.md` | Implementasi tabel/filter booking, detail, signed proof, transisi status atomik, audit, dan counter dashboard |
 | `33-phase-9-whatsapp-notification.md` | Implementasi adapter Meta Cloud API, formatter pesan, delivery log idempotent, timeout/error mapping, dan retry admin |
 | `34-phase-10-seo-accessibility-performance.md` | Implementasi metadata/canonical/OG, sitemap/robots, audit WCAG, optimasi image/JS, performance budget, dan baseline Lighthouse |
+| `35-phase-11-security-hardening-observability.md` | Implementasi CSP/security headers, rate limit, structured log/redaction, monitoring, upload abuse checks, secret scan, dependency patch, dan audit append-only |
 | `roadmap.md` | Tahapan setup sampai production & QA |
 | `project-guidelines.md` | Salinan guideline sumber dari lampiran |
 

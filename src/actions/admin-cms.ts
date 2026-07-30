@@ -26,6 +26,7 @@ const auditResourceTypes = {
 function value(formData: FormData, name: string) { return String(formData.get(name) ?? ""); }
 function values(formData: FormData, name: string) { return formData.getAll(name).map(String); }
 function lines(input: string) { return input.split(/\r?\n/).map((item) => item.trim()).filter(Boolean); }
+function jakartaDateTimeToIso(input: string) { return new Date(`${input}:00+07:00`).toISOString(); }
 function fileValue(formData: FormData, name = "image") {
   const candidate = formData.get(name);
   return candidate instanceof File && candidate.size > 0 ? candidate : null;
@@ -51,13 +52,14 @@ function safeErrorMessage(error: unknown) {
 
 async function auditChange(
   client: Awaited<ReturnType<typeof createClient>>,
-  actorId: string,
   resourceType: string,
   resourceId: string | null,
   action: "create" | "update" | "delete" | "publish" | "archive",
 ) {
-  const { error } = await client.from("content_change_events").insert({
-    resource_type: resourceType, resource_id: resourceId, action, actor_id: actorId,
+  const { error } = await client.rpc("record_content_change_event", {
+    p_resource_type: resourceType,
+    p_resource_id: resourceId,
+    p_action: action,
   });
   if (error) throw new Error(`Audit CMS gagal (${error.code}).`);
 }
@@ -133,7 +135,7 @@ export async function saveCmsResource(
   if (!common.success) return errorState("Permintaan CMS tidak valid.", fieldErrors(common.error));
 
   const { resource, id } = common.data;
-  const admin = await requireAdmin();
+  await requireAdmin();
   const client = await createClient();
   const imageFile = fileValue(formData);
   let uploadedPath: string | null = null;
@@ -206,10 +208,16 @@ export async function saveCmsResource(
       await replaceRelations(client, "blog_post_activities", "blog_post_id", recordId, "activity_id", data.activityIds);
       await replaceRelations(client, "blog_post_trips", "blog_post_id", recordId, "trip_id", data.tripIds);
     } else {
-      const parsed = promotionSchema.safeParse({ name: value(formData, "name"), discountType: value(formData, "discountType"), discountValue: value(formData, "discountValue"), startsAt: value(formData, "startsAt"), endsAt: value(formData, "endsAt") || undefined, isActive: formData.get("isActive"), terms: value(formData, "terms"), tripIds: values(formData, "tripIds") });
+      const parsed = promotionSchema.safeParse({ name: value(formData, "name"), code: value(formData, "code"), discountType: value(formData, "discountType"), discountValue: value(formData, "discountValue"), startsAt: value(formData, "startsAt"), endsAt: value(formData, "endsAt") || undefined, isActive: formData.get("isActive"), terms: value(formData, "terms"), tripIds: values(formData, "tripIds") });
       if (!parsed.success) return errorState("Periksa kembali data promo.", fieldErrors(parsed.error));
       const data = parsed.data; nextStatus = data.isActive ? "active" : "inactive";
-      recordId = await persistRow(client, "promotions", id, { name: data.name, discount_type: data.discountType, discount_value: data.discountValue, starts_at: new Date(data.startsAt).toISOString(), ends_at: data.endsAt ? new Date(data.endsAt).toISOString() : null, is_active: data.isActive, terms: data.terms });
+      if (value(formData, "codePromoQuickCreate") === "1" && (!data.code || !data.endsAt)) {
+        return errorState("Lengkapi kode dan periode promo.", {
+          ...(!data.code ? { code: ["Kode promo wajib diisi."] } : {}),
+          ...(!data.endsAt ? { endsAt: ["Tanggal selesai wajib diisi."] } : {}),
+        });
+      }
+      recordId = await persistRow(client, "promotions", id, { name: data.name, code: data.code, discount_type: data.discountType, discount_value: data.discountValue, starts_at: jakartaDateTimeToIso(data.startsAt), ends_at: data.endsAt ? jakartaDateTimeToIso(data.endsAt) : null, is_active: data.isActive, terms: data.terms });
       mainRowSaved = true;
       if (!recordId) throw new Error("ID promo tidak tersedia.");
       await replaceRelations(client, "promotion_trips", "promotion_id", recordId, "trip_id", data.tripIds);
@@ -217,10 +225,15 @@ export async function saveCmsResource(
 
     if (!recordId) throw new Error("ID konten tidak tersedia.");
     const action = !id ? "create" : nextStatus === "published" ? "publish" : nextStatus === "archived" ? "archive" : "update";
-    await auditChange(client, admin.authUserId, auditResourceTypes[resource], recordId, action);
+    await auditChange(client, auditResourceTypes[resource], recordId, action);
     if (uploadedPath && oldImagePath && uploadedPath !== oldImagePath) await removeContentImage(oldImagePath);
   } catch (error) {
     if (uploadedPath && !mainRowSaved) await removeContentImage(uploadedPath);
+    if (resource === "promotions" && error instanceof Error && error.message.includes("(23505)")) {
+      return errorState("Kode promo sudah digunakan.", {
+        code: ["Pilih kode lain yang belum pernah digunakan."],
+      });
+    }
     return errorState(safeErrorMessage(error));
   }
 
@@ -235,13 +248,13 @@ export async function deleteCmsResource(
   void _previousState;
   const parsed = deleteCmsSchema.safeParse({ resource: value(formData, "resource"), id: value(formData, "id"), confirmation: value(formData, "confirmation") });
   if (!parsed.success) return errorState("Ketik HAPUS untuk mengonfirmasi penghapusan.", fieldErrors(parsed.error));
-  const admin = await requireAdmin();
+  await requireAdmin();
   const client = await createClient();
   const { resource, id } = parsed.data;
   const imagePath = await currentImagePath(client, resource, id);
   const { error } = await client.from(resourceTables[resource]).delete().eq("id", id);
   if (error) return errorState("Konten tidak dapat dihapus karena masih memiliki relasi atau riwayat penting. Gunakan Arsipkan.");
-  await auditChange(client, admin.authUserId, auditResourceTypes[resource], id, "delete");
+  await auditChange(client, auditResourceTypes[resource], id, "delete");
   await removeContentImage(imagePath);
   revalidateCmsResource(resource);
   redirect(`/admin/${resource}?deleted=1`);
@@ -250,7 +263,7 @@ export async function deleteCmsResource(
 export async function saveHomepageContent(_state: CmsActionState, formData: FormData): Promise<CmsActionState> {
   const parsed = homepageSchema.safeParse({ heroTitle: value(formData, "heroTitle"), heroSubtitle: value(formData, "heroSubtitle"), primaryCtaLabel: value(formData, "primaryCtaLabel"), primaryCtaHref: value(formData, "primaryCtaHref"), secondaryCtaLabel: value(formData, "secondaryCtaLabel"), secondaryCtaHref: value(formData, "secondaryCtaHref"), isPublished: formData.get("isPublished"), visibleSections: values(formData, "visibleSections"), imagePath: value(formData, "imagePath") });
   if (!parsed.success) return errorState("Periksa kembali konten Home.", fieldErrors(parsed.error));
-  const admin = await requireAdmin(); const client = await createClient(); const image = fileValue(formData);
+  await requireAdmin(); const client = await createClient(); const image = fileValue(formData);
   const { data: current } = await client.from("homepage_content").select("hero_image_path").eq("id", true).maybeSingle();
   let uploaded: string | null = null;
   let rowSaved = false;
@@ -261,7 +274,7 @@ export async function saveHomepageContent(_state: CmsActionState, formData: Form
     const { error } = await client.from("homepage_content").upsert({ id: true, hero_title: parsed.data.heroTitle, hero_subtitle: parsed.data.heroSubtitle, hero_image_path: uploaded ?? current?.hero_image_path ?? null, primary_cta_label: parsed.data.primaryCtaLabel, primary_cta_href: parsed.data.primaryCtaHref, secondary_cta_label: parsed.data.secondaryCtaLabel, secondary_cta_href: parsed.data.secondaryCtaHref || null, section_visibility: visibility, is_published: parsed.data.isPublished });
     if (error) throw new Error(`Database mutation gagal (${error.code}).`);
     rowSaved = true;
-    await auditChange(client, admin.authUserId, "homepage_content", "singleton", parsed.data.isPublished ? "publish" : "update");
+    await auditChange(client, "homepage_content", "singleton", parsed.data.isPublished ? "publish" : "update");
     if (uploaded && current?.hero_image_path) await removeContentImage(current.hero_image_path);
   } catch (error) { if (uploaded && !rowSaved) await removeContentImage(uploaded); return errorState(safeErrorMessage(error)); }
   revalidateHomepage(); redirect("/admin/home?saved=1");
@@ -270,25 +283,25 @@ export async function saveHomepageContent(_state: CmsActionState, formData: Form
 export async function saveUspItem(_state: CmsActionState, formData: FormData): Promise<CmsActionState> {
   const parsed = uspSchema.safeParse({ id: value(formData, "id"), title: value(formData, "title"), description: value(formData, "description"), iconKey: value(formData, "iconKey"), sortOrder: value(formData, "sortOrder"), isActive: formData.get("isActive") });
   if (!parsed.success) return errorState("Periksa kembali data USP.", fieldErrors(parsed.error));
-  const admin = await requireAdmin(); const client = await createClient(); const { id, ...data } = parsed.data;
+  await requireAdmin(); const client = await createClient(); const { id, ...data } = parsed.data;
   const uspId = await persistRow(client, "usp_items", id, { title: data.title, description: data.description, icon_key: data.iconKey, sort_order: data.sortOrder, is_active: data.isActive });
-  await auditChange(client, admin.authUserId, "usp_item", uspId, id ? "update" : "create");
+  await auditChange(client, "usp_item", uspId, id ? "update" : "create");
   revalidateHomepage(); redirect("/admin/home?uspSaved=1");
 }
 
 export async function deleteUspItem(formData: FormData) {
   const id = value(formData, "id");
-  const admin = await requireAdmin(); const client = await createClient();
+  await requireAdmin(); const client = await createClient();
   const { error } = await client.from("usp_items").delete().eq("id", id);
   if (error) throw new Error("USP tidak dapat dihapus.");
-  await auditChange(client, admin.authUserId, "usp_item", id, "delete");
+  await auditChange(client, "usp_item", id, "delete");
   revalidateHomepage(); redirect("/admin/home?uspDeleted=1");
 }
 
 export async function saveSiteSettings(_state: CmsActionState, formData: FormData): Promise<CmsActionState> {
   const parsed = siteSettingsSchema.safeParse({ brandName: value(formData, "brandName"), logoPath: value(formData, "logoPath"), publicWhatsapp: value(formData, "publicWhatsapp"), email: value(formData, "email"), address: value(formData, "address"), bankName: value(formData, "bankName"), bankAccountNumber: value(formData, "bankAccountNumber"), bankAccountHolder: value(formData, "bankAccountHolder"), adminWhatsappNumber: value(formData, "adminWhatsappNumber"), footerText: value(formData, "footerText"), instagram: value(formData, "instagram"), facebook: value(formData, "facebook"), tiktok: value(formData, "tiktok") });
   if (!parsed.success) return errorState("Periksa kembali pengaturan bisnis.", fieldErrors(parsed.error));
-  const admin = await requireAdmin(); const client = await createClient(); const image = fileValue(formData, "logo");
+  await requireAdmin(); const client = await createClient(); const image = fileValue(formData, "logo");
   const { data: current } = await client.from("site_settings").select("logo_path").eq("id", true).maybeSingle();
   let uploaded: string | null = null;
   let rowSaved = false;
@@ -298,7 +311,7 @@ export async function saveSiteSettings(_state: CmsActionState, formData: FormDat
     const { error } = await client.from("site_settings").upsert({ id: true, brand_name: data.brandName, logo_path: uploaded ?? current?.logo_path ?? null, public_whatsapp: data.publicWhatsapp, email: data.email, address: data.address, bank_name: data.bankName, bank_account_number: data.bankAccountNumber, bank_account_holder: data.bankAccountHolder, admin_whatsapp_number: data.adminWhatsappNumber, footer_text: data.footerText, social_links: { instagram: data.instagram || null, facebook: data.facebook || null, tiktok: data.tiktok || null } });
     if (error) throw new Error(`Database mutation gagal (${error.code}).`);
     rowSaved = true;
-    await auditChange(client, admin.authUserId, "site_settings", "singleton", "update");
+    await auditChange(client, "site_settings", "singleton", "update");
     if (uploaded && current?.logo_path) await removeContentImage(current.logo_path);
   } catch (error) { if (uploaded && !rowSaved) await removeContentImage(uploaded); return errorState(safeErrorMessage(error)); }
   revalidateSiteSettings(); redirect("/admin/settings?saved=1");

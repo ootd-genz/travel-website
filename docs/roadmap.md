@@ -352,25 +352,33 @@ Implementasi, performance budget, dan hasil audit dicatat pada
 
 # Phase 11 — Security Hardening & Observability
 
+**Status: selesai dan diverifikasi lokal pada 30 Juli 2026.**
+Migration `013` harus diterapkan pada environment target sebelum mutation booking
+dan audit CMS/proof Phase 11 diaktifkan.
+
 ## Scope
 
-- security headers/CSP;
-- rate limits;
-- log redaction;
-- structured logs;
-- error tracking/monitoring;
-- upload abuse checks;
-- secret scan;
-- admin action audit review.
+- [x] security headers/CSP;
+- [x] rate limits;
+- [x] log redaction;
+- [x] structured logs;
+- [x] error tracking/monitoring;
+- [x] upload abuse checks;
+- [x] secret scan;
+- [x] admin action audit review.
 
 ## QA
 
-- auth bypass attempts;
-- file MIME mismatch;
-- XSS input;
-- excessive payload;
-- rate limit;
-- no secret exposure.
+- [x] auth bypass attempts;
+- [x] file MIME mismatch;
+- [x] XSS input;
+- [x] excessive payload;
+- [x] rate limit;
+- [x] no secret exposure.
+
+Implementasi, trade-off CSP, konfigurasi monitoring, dependency hardening, dan
+hasil QA dicatat pada
+[`35-phase-11-security-hardening-observability.md`](35-phase-11-security-hardening-observability.md).
 
 ---
 

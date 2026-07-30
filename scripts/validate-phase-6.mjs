@@ -128,6 +128,50 @@ assert.equal(
   "ID harus menjadi tie-breaker terakhir setelah nominal dan starts_at sama.",
 );
 
+const codedPromotion = {
+  id: "coded-promo",
+  name: "Kode Hemat",
+  code: "HEMAT10",
+  discountType: "percentage",
+  discountValue: "10.00",
+  startsAt: "2026-07-01T00:00:00.000Z",
+  endsAt: "2026-08-01T00:00:00.000Z",
+  isActive: true,
+};
+const withCorrectCode = calculatePriceSnapshot({
+  basePrice: "1000.00",
+  salePrice: null,
+  priceUnit: "per_person",
+  travelerCount: 2,
+  now,
+  promotionCode: "hemat10",
+  promotions: [codedPromotion],
+});
+assert.equal(withCorrectCode.discountAmount, "200.00");
+assert.equal(withCorrectCode.promotion?.id, "coded-promo");
+
+const withoutCode = calculatePriceSnapshot({
+  basePrice: "1000.00",
+  salePrice: null,
+  priceUnit: "per_person",
+  travelerCount: 2,
+  now,
+  promotions: [codedPromotion],
+});
+assert.equal(withoutCode.discountAmount, "0.00");
+assert.equal(withoutCode.promotion, null);
+
+const withWrongCode = calculatePriceSnapshot({
+  basePrice: "1000.00",
+  salePrice: null,
+  priceUnit: "per_person",
+  travelerCount: 2,
+  now,
+  promotionCode: "SALAH10",
+  promotions: [codedPromotion],
+});
+assert.equal(withWrongCode.promotion, null);
+
 const draftLayer = read("src/lib/booking/drafts.ts");
 const bookingAction = read("src/actions/booking.ts");
 const draftForm = read(
@@ -136,6 +180,10 @@ const draftForm = read(
 const summaryPage = read("src/app/(public)/booking/[token]/page.tsx");
 const tripPage = read("src/app/(public)/trips/[slug]/page.tsx");
 const migration = read("src/migrations/008_add_booking_departure_snapshot.sql");
+const promoCodeMigration = read("src/migrations/012_add_promotion_codes.sql");
+const promoCodeAdmin = read(
+  "src/app/(admin)/admin/_components/promo-code-create-card.tsx",
+);
 
 assert.match(draftLayer, /randomBytes\(32\)\.toString\("base64url"\)/);
 assert.match(draftLayer, /createHash\("sha256"\)/);
@@ -152,6 +200,10 @@ assert.doesNotMatch(
   /formData\.get\("(?:price|total|discount|subtotal)/i,
   "Action tidak boleh membaca harga atau total dari browser.",
 );
+assert.match(bookingAction, /formData\.get\("promoCode"\)/);
+assert.match(draftForm, /name="promoCode"/);
+assert.match(draftLayer, /invalid_promo_code/);
+assert.match(draftLayer, /promotion_code_snapshot/);
 assert.doesNotMatch(
   draftForm,
   /name="(?:price|total|discount|subtotal)/i,
@@ -165,7 +217,13 @@ assert.match(summaryPage, /draft\.totalAmount/);
 assert.doesNotMatch(summaryPage, /public_token_hash|transfer_proof/);
 assert.match(migration, /departure_option_snapshot/);
 assert.match(migration, /protect_booking_snapshot/);
+assert.match(promoCodeMigration, /promotions_code_unique_idx/);
+assert.match(promoCodeMigration, /code is null/);
+assert.match(promoCodeMigration, /promotion_code_snapshot/);
+assert.match(promoCodeMigration, /to anon/);
+assert.match(promoCodeAdmin, /Buat kode promo/);
+assert.match(promoCodeAdmin, /defaultEndsAt/);
 
 console.log(
-  "Phase 6 checks passed: exact price snapshots, deterministic promotions, secure token hashing, server-only totals, expiry, immutable departure snapshot, CTA, and noindex summary verified.",
+  "Phase 6 checks passed: exact price snapshots, automatic and coded promotions, secure token hashing, server-only totals, expiry, immutable booking snapshots, CTA, and noindex summary verified.",
 );

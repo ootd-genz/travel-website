@@ -25,6 +25,11 @@ Lanjutan:
 11. `011_whatsapp_notification_delivery.sql` — RPC service-role-only untuk
     claim/finalize delivery WhatsApp secara idempotent, lease request aktif,
     batas tiga percobaan, dan backoff terkontrol.
+12. `012_add_promotion_codes.sql` — kode promo privat, periode aktif, pembatasan
+    visibilitas publik, dan snapshot kode promo immutable pada booking.
+13. `013_security_hardening_observability.sql` — rate limit persisten untuk
+    mutation booking publik, RPC audit admin tervalidasi, audit akses bukti
+    transfer, dan trigger append-only untuk event audit kritis.
 
 ## Cara menerapkan
 

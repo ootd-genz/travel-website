@@ -24,12 +24,12 @@ export async function getCmsList(resource: CmsResource, search = ""): Promise<Cm
   const term = search.trim().slice(0, 100);
 
   if (resource === "promotions") {
-    let query = client.from("promotions").select("id,name,discount_type,discount_value,is_active,updated_at").order("updated_at", { ascending: false }).limit(100);
+    let query = client.from("promotions").select("id,name,code,discount_type,discount_value,is_active,updated_at").order("updated_at", { ascending: false }).limit(100);
     if (term) query = query.ilike("name", `%${term}%`);
     const { data, error } = await query;
     return ensureQuery(data, error, "promo").map((row) => ({
       id: row.id, title: row.name, slug: null, status: row.is_active ? "active" : "inactive",
-      detail: `${row.discount_type === "percentage" ? `${row.discount_value}%` : `Rp ${Number(row.discount_value).toLocaleString("id-ID")}`}`,
+      detail: `${row.code ? `${row.code} · ` : "Otomatis · "}${row.discount_type === "percentage" ? `${row.discount_value}%` : `Rp ${Number(row.discount_value).toLocaleString("id-ID")}`}`,
       updatedAt: row.updated_at,
     }));
   }
@@ -70,7 +70,7 @@ const destinationFields = "id,name,slug,short_description,description,country,re
 const activityFields = "id,name,slug,short_description,description,icon_key,image_path,gallery,difficulty,duration_text,show_on_home,home_rank,status,seo_title,seo_description";
 const tripTypeFields = "id,name,slug,short_description,description,icon_key,image_path,sort_order,is_featured,status,seo_title,seo_description";
 const blogFields = "id,title,slug,excerpt,content,cover_image_path,author_label,category,tags,status,show_on_home,home_rank,seo_title,seo_description,blog_post_destinations(destination_id),blog_post_activities(activity_id),blog_post_trips(trip_id)";
-const promotionFields = "id,name,discount_type,discount_value,starts_at,ends_at,is_active,terms,promotion_trips(trip_id)";
+const promotionFields = "id,name,code,discount_type,discount_value,starts_at,ends_at,is_active,terms,promotion_trips(trip_id)";
 
 export async function getCmsRecord(resource: CmsResource, id: string) {
   await requireAdmin();

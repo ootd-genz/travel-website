@@ -107,7 +107,7 @@ Jangan menambah data identitas sensitif seperti NIK, nomor paspor, atau tanggal 
 
 ## Keputusan Teknis Turunan
 
-- Tech stack tetap Next.js 16.2.7, React 19.2.4, TypeScript, Tailwind CSS 4, shadcn/Radix, dan Supabase sesuai dokumen arsitektur.
+- Tech stack memakai Next.js 16.2.12 (patch keamanan Phase 11), React 19.2.4, TypeScript, Tailwind CSS 4, shadcn/Radix, dan Supabase sesuai dokumen arsitektur.
 - Hanya satu admin aktif dan tidak ada public signup.
 - Bukti transfer private; signed URL hanya diberikan setelah authorization admin.
 - Harga selalu dihitung dan disnapshot server-side.

@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 
+import { getAuthRequestContext } from "@/lib/auth/request-context";
 import {
   BookingDraftError,
   createBookingDraft,
@@ -16,6 +17,12 @@ import {
   submitBooking,
 } from "@/lib/booking/submissions";
 import { sendBookingWaitingVerificationNotification } from "@/lib/notifications/whatsapp/service";
+import { logger } from "@/lib/observability/logger";
+import {
+  consumeBookingDraftRateLimit,
+  consumeBookingSubmitRateLimits,
+  RateLimitServiceError,
+} from "@/lib/security/rate-limit";
 import {
   createBookingDraftSchema,
   publicBookingTokenSchema,
@@ -25,7 +32,7 @@ import {
 export type BookingDraftActionState = {
   message: string | null;
   fieldErrors: Partial<
-    Record<"travelerCount" | "departureOption", string[]>
+    Record<"travelerCount" | "departureOption" | "promoCode", string[]>
   >;
 };
 
@@ -37,6 +44,7 @@ export async function createBookingDraftAction(
     tripId: formData.get("tripId"),
     travelerCount: formData.get("travelerCount"),
     departureOption: formData.get("departureOption"),
+    promoCode: formData.get("promoCode"),
   });
 
   if (!parsed.success) {
@@ -46,7 +54,35 @@ export async function createBookingDraftAction(
       fieldErrors: {
         travelerCount: errors.travelerCount,
         departureOption: errors.departureOption,
+        promoCode: errors.promoCode,
       },
+    };
+  }
+
+  const requestContext = await getAuthRequestContext();
+  try {
+    const rateLimit = await consumeBookingDraftRateLimit(
+      requestContext.ipAddress,
+    );
+    if (!rateLimit.allowed) {
+      logger.warn("booking.draft_rate_limited", {
+        requestId: requestContext.requestId,
+        retryAfterSeconds: rateLimit.retry_after_seconds,
+      });
+      return {
+        message: `Terlalu banyak percobaan. Coba kembali sekitar ${Math.max(1, Math.ceil(rateLimit.retry_after_seconds / 60))} menit lagi.`,
+        fieldErrors: {},
+      };
+    }
+  } catch (error) {
+    logger.error("booking.draft_rate_limit_unavailable", {
+      requestId: requestContext.requestId,
+      error,
+    });
+    return {
+      message:
+        "Sesi pemesanan belum dapat dibuat dengan aman. Coba lagi beberapa saat.",
+      fieldErrors: {},
     };
   }
 
@@ -55,6 +91,11 @@ export async function createBookingDraftAction(
   try {
     const result = await createBookingDraft(parsed.data);
     token = result.token;
+    logger.info("booking.draft_created", {
+      requestId: requestContext.requestId,
+      tripId: parsed.data.tripId,
+      status: "success",
+    });
   } catch (error) {
     if (error instanceof BookingDraftError) {
       if (error.code === "invalid_traveler_count") {
@@ -73,6 +114,16 @@ export async function createBookingDraftAction(
           fieldErrors: {
             departureOption: [
               "Pilih kembali opsi keberangkatan yang tersedia.",
+            ],
+          },
+        };
+      }
+      if (error.code === "invalid_promo_code") {
+        return {
+          message: "Kode promo belum dapat digunakan.",
+          fieldErrors: {
+            promoCode: [
+              "Kode tidak valid, belum aktif, sudah berakhir, atau tidak berlaku untuk paket ini.",
             ],
           },
         };
@@ -103,6 +154,7 @@ export type SubmitBookingActionState = {
     | "expired"
     | "unavailable"
     | "upload_failed"
+    | "rate_limited"
     | "unexpected"
     | null;
   fieldErrors: Partial<Record<string, string[]>>;
@@ -118,6 +170,9 @@ function proofErrorMessage(error: TransferProofError) {
   if (error.code === "missing" || error.code === "empty") {
     return "Unggah satu bukti transfer sebelum mengirim pemesanan.";
   }
+  if (error.code === "unsafe_content") {
+    return "Isi bukti transfer tidak aman atau struktur filenya tidak valid.";
+  }
   return "Unggah bukti transfer JPEG, PNG, atau PDF dengan isi file yang valid.";
 }
 
@@ -125,7 +180,7 @@ async function cleanupUploadedProof(path: string) {
   try {
     await removeTransferProof(path);
   } catch (error) {
-    console.error("Gagal membersihkan bukti transfer setelah submit.", {
+    logger.error("booking.proof_cleanup_failed", {
       code: error instanceof Error ? error.name : "unknown",
     });
   }
@@ -145,11 +200,45 @@ export async function submitBookingAction(
     };
   }
 
+  const requestContext = await getAuthRequestContext();
+  try {
+    const rateLimit = await consumeBookingSubmitRateLimits(
+      requestContext.ipAddress,
+      parsedToken.data,
+    );
+    if (!rateLimit.allowed) {
+      logger.warn("booking.submit_rate_limited", {
+        requestId: requestContext.requestId,
+        limitedScope: rateLimit.limitedScope,
+        retryAfterSeconds: rateLimit.retryAfterSeconds,
+      });
+      return {
+        message: `Terlalu banyak percobaan pengiriman. Coba kembali sekitar ${Math.max(1, Math.ceil(rateLimit.retryAfterSeconds / 60))} menit lagi.`,
+        code: "rate_limited",
+        fieldErrors: {},
+      };
+    }
+  } catch (error) {
+    logger.error("booking.submit_rate_limit_unavailable", {
+      requestId: requestContext.requestId,
+      error:
+        error instanceof RateLimitServiceError
+          ? error
+          : new RateLimitServiceError(),
+    });
+    return {
+      message:
+        "Pemesanan belum dapat dikirim dengan aman. Coba lagi beberapa saat.",
+      code: "unexpected",
+      fieldErrors: {},
+    };
+  }
+
   let context: Awaited<ReturnType<typeof getBookingSubmissionContext>>;
   try {
     context = await getBookingSubmissionContext(parsedToken.data);
   } catch (error) {
-    console.error("Gagal memeriksa draft sebelum submit.", {
+    logger.error("booking.submission_context_failed", {
       code: error instanceof Error ? error.name : "unknown",
     });
     return {
@@ -273,7 +362,7 @@ export async function submitBookingAction(
     });
   } catch (error) {
     await cleanupUploadedProof(uploadedPath);
-    console.error("Gagal menyimpan booking setelah upload.", {
+    logger.error("booking.submission_failed_after_upload", {
       code: error instanceof Error ? error.name : "unknown",
     });
     return {
@@ -293,6 +382,12 @@ export async function submitBookingAction(
     } else if (outcome.booking_id) {
       await sendBookingWaitingVerificationNotification(outcome.booking_id);
     }
+    logger.info("booking.submitted", {
+      requestId: requestContext.requestId,
+      bookingId: outcome.booking_id,
+      outcome: outcome.outcome,
+      status: "success",
+    });
     redirect(`/booking/${parsedToken.data}/success`);
   }
 

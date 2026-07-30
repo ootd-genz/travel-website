@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FormSelect } from "@/components/ui/select";
@@ -154,20 +155,20 @@ export default async function AdminBookingsPage({
             </div>
             <div className="grid gap-2 lg:col-span-2">
               <Label htmlFor="booking-from">Dari tanggal</Label>
-              <Input
+              <DatePicker
                 id="booking-from"
                 name="from"
-                type="date"
                 defaultValue={filters.from}
+                placeholder="Pilih tanggal awal"
               />
             </div>
             <div className="grid gap-2 lg:col-span-2">
               <Label htmlFor="booking-to">Sampai tanggal</Label>
-              <Input
+              <DatePicker
                 id="booking-to"
                 name="to"
-                type="date"
                 defaultValue={filters.to}
+                placeholder="Pilih tanggal akhir"
               />
             </div>
             <div className="flex flex-col gap-2 sm:flex-row lg:col-span-12 lg:justify-end">

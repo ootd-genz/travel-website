@@ -73,9 +73,37 @@ const whatsappEnvSchema = z.object({
     .regex(/^[a-z]{2,3}(?:_[A-Z]{2})?$/),
 });
 
+const optionalHttpsUrl = z.preprocess(
+  (value) => (typeof value === "string" && value.trim() ? value.trim() : undefined),
+  z
+    .string()
+    .url()
+    .refine((value) => new URL(value).protocol === "https:")
+    .optional(),
+);
+
+const observabilityEnvSchema = z.object({
+  OBSERVABILITY_SERVICE_NAME: z
+    .string()
+    .trim()
+    .min(1)
+    .max(64)
+    .regex(/^[a-zA-Z0-9_-]+$/)
+    .default("travel-website"),
+  OBSERVABILITY_LOG_LEVEL: z
+    .enum(["debug", "info", "warn", "error"])
+    .default("info"),
+  OBSERVABILITY_ERROR_WEBHOOK_URL: optionalHttpsUrl,
+});
+
 export type PublicEnv = z.infer<typeof publicEnvSchema>;
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
 export type WhatsAppEnv = z.infer<typeof whatsappEnvSchema>;
+export type ObservabilityEnv = {
+  serviceName: string;
+  logLevel: "debug" | "info" | "warn" | "error";
+  errorWebhookUrl?: string;
+};
 
 export function hasSupabasePublicEnv() {
   return Boolean(
@@ -122,4 +150,19 @@ export function getWhatsAppEnv(): WhatsAppEnv {
     WHATSAPP_TEMPLATE_NAME: process.env.WHATSAPP_TEMPLATE_NAME,
     WHATSAPP_TEMPLATE_LANGUAGE: process.env.WHATSAPP_TEMPLATE_LANGUAGE,
   });
+}
+
+export function getObservabilityEnv(): ObservabilityEnv {
+  const parsed = observabilityEnvSchema.parse({
+    OBSERVABILITY_SERVICE_NAME: process.env.OBSERVABILITY_SERVICE_NAME,
+    OBSERVABILITY_LOG_LEVEL: process.env.OBSERVABILITY_LOG_LEVEL,
+    OBSERVABILITY_ERROR_WEBHOOK_URL:
+      process.env.OBSERVABILITY_ERROR_WEBHOOK_URL,
+  });
+
+  return {
+    serviceName: parsed.OBSERVABILITY_SERVICE_NAME,
+    logLevel: parsed.OBSERVABILITY_LOG_LEVEL,
+    errorWebhookUrl: parsed.OBSERVABILITY_ERROR_WEBHOOK_URL,
+  };
 }

@@ -3,6 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import { getWhatsAppEnv } from "@/configs/env";
+import { logger } from "@/lib/observability/logger";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 import {
@@ -130,7 +131,7 @@ async function finalizeDelivery(input: {
   );
 
   if (error) {
-    console.error("Finalisasi delivery WhatsApp gagal.", {
+    logger.error("whatsapp.delivery_finalize_failed", {
       code: error.code,
       deliveryId: input.deliveryId,
     });
@@ -139,7 +140,7 @@ async function finalizeDelivery(input: {
 
   const parsed = finalizeResultSchema.safeParse(data);
   if (!parsed.success) {
-    console.error("Respons finalisasi delivery WhatsApp tidak valid.", {
+    logger.error("whatsapp.delivery_finalize_invalid", {
       deliveryId: input.deliveryId,
     });
     return null;
@@ -192,7 +193,7 @@ export async function sendBookingWaitingVerificationNotification(
     );
 
     if (claimError) {
-      console.error("Klaim delivery WhatsApp gagal.", {
+      logger.error("whatsapp.delivery_claim_failed", {
         code: claimError.code,
         bookingId: parsedBookingId.data,
       });
@@ -201,7 +202,7 @@ export async function sendBookingWaitingVerificationNotification(
 
     const parsedClaim = claimResultSchema.safeParse(claimData);
     if (!parsedClaim.success) {
-      console.error("Respons klaim delivery WhatsApp tidak valid.", {
+      logger.error("whatsapp.delivery_claim_invalid", {
         bookingId: parsedBookingId.data,
       });
       return { outcome: "delivery_unavailable", nextAttemptAt: null };
@@ -315,7 +316,7 @@ export async function sendBookingWaitingVerificationNotification(
 
     return { outcome: "sent", nextAttemptAt: null };
   } catch (error) {
-    console.error("Proses notifikasi WhatsApp gagal tanpa menggagalkan booking.", {
+    logger.error("whatsapp.delivery_unexpected_failure", {
       code: error instanceof Error ? error.name : "unknown",
       bookingId: parsedBookingId.data,
     });

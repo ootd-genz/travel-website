@@ -216,7 +216,11 @@ export default async function AdminBookingDetailPage({
               />
               <DetailItem
                 label="Promo"
-                value={booking.promotionName ?? "Tidak ada promo"}
+                value={
+                  booking.promotionName
+                    ? `${booking.promotionName}${booking.promotionCode ? ` (${booking.promotionCode})` : ""}`
+                    : "Tidak ada promo"
+                }
               />
               <DetailItem
                 label="Diskon"
@@ -368,12 +372,13 @@ export default async function AdminBookingDetailPage({
                   />
                 </div>
               ) : booking.proof.fileKind === "pdf" ? (
-                <iframe
-                  title={`Bukti transfer ${booking.bookingCode}`}
-                  src={booking.proof.url}
-                  className="h-[36rem] w-full rounded-lg border bg-background"
-                  referrerPolicy="no-referrer"
-                />
+                <Alert>
+                  <AlertTitle>PDF siap diperiksa</AlertTitle>
+                  <AlertDescription>
+                    Demi keamanan, PDF tidak disematkan di dashboard. Buka file
+                    melalui tautan sementara di bawah pada tab terpisah.
+                  </AlertDescription>
+                </Alert>
               ) : (
                 <Alert>
                   <AlertTitle>Preview tidak tersedia</AlertTitle>

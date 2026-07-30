@@ -56,14 +56,14 @@
 
 ## Security
 
-- [ ] Service role server-only.
-- [ ] RLS aktif dan diuji.
-- [ ] Booking private tidak dapat dibaca anon.
+- [x] Service role server-only.
+- [x] RLS aktif dan diuji.
+- [x] Booking private tidak dapat dibaca anon.
 - [x] File upload tervalidasi.
 - [x] Storage private.
-- [ ] Rate limit endpoint sensitif.
-- [ ] No secret di Git/log/client.
-- [ ] Admin dan booking flow noindex.
+- [x] Rate limit endpoint sensitif.
+- [x] No secret di Git/log/client.
+- [x] Admin dan booking flow noindex.
 
 ## SEO & Accessibility
 

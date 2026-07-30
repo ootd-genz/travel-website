@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { logger } from "@/lib/observability/logger";
 
 const MAX_ATTEMPTS = 5;
 const WINDOW_SECONDS = 15 * 60;
@@ -38,7 +39,6 @@ export async function resetAdminLoginAttempts(identifierHash: string) {
   });
 
   if (error) {
-    console.error("Gagal mereset rate limit login admin.", { code: error.code });
+    logger.error("auth.login_rate_limit_reset_failed", { code: error.code });
   }
 }
-
