@@ -1,7 +1,7 @@
-import { LockKeyhole } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { BrandLogo } from "@/components/common/brand-logo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getSafeAdminRedirect } from "@/lib/auth/redirects";
@@ -32,9 +32,7 @@ export default async function AdminLoginPage({
     <main className="grid min-h-screen place-items-center bg-muted/40 px-4 py-12">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <div className="mb-3 flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
-            <LockKeyhole className="size-5" aria-hidden="true" />
-          </div>
+          <BrandLogo alt="Travel Bali" className="mb-3 size-16" priority />
           <CardTitle>Login Admin</CardTitle>
           <CardDescription>
             Masuk menggunakan satu akun admin yang telah disetujui.

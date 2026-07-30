@@ -2,7 +2,7 @@
 
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
-import type { ComponentProps } from "react";
+import { useState, type ComponentProps } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -146,6 +146,72 @@ function SelectSeparator({
   );
 }
 
+type FormSelectOption = {
+  disabled?: boolean;
+  label: string;
+  value: string;
+};
+
+const EMPTY_VALUE = "__shadcn_empty_value__";
+
+type FormSelectProps = {
+  defaultValue?: string;
+  disabled?: boolean;
+  id: string;
+  name: string;
+  options: FormSelectOption[];
+  placeholder?: string;
+  triggerClassName?: string;
+};
+
+function FormSelect(props: FormSelectProps) {
+  return (
+    <FormSelectControl
+      key={props.defaultValue || EMPTY_VALUE}
+      {...props}
+    />
+  );
+}
+
+function FormSelectControl({
+  defaultValue = "",
+  disabled,
+  id,
+  name,
+  options,
+  placeholder = "Pilih opsi",
+  triggerClassName,
+}: FormSelectProps) {
+  const initialValue = defaultValue || EMPTY_VALUE;
+  const [value, setValue] = useState(initialValue);
+
+  return (
+    <>
+      <input
+        type="hidden"
+        name={name}
+        value={value === EMPTY_VALUE ? "" : value}
+      />
+      <Select value={value} onValueChange={setValue} disabled={disabled}>
+        <SelectTrigger id={id} className={triggerClassName}>
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem
+              key={option.value || EMPTY_VALUE}
+              value={option.value || EMPTY_VALUE}
+              disabled={option.disabled}
+            >
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </>
+  );
+}
+
 export {
   Select,
   SelectContent,
@@ -157,4 +223,5 @@ export {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
+  FormSelect,
 };

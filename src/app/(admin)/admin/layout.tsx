@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import { logoutAdmin } from "@/actions/admin-auth";
+import { BrandLogo } from "@/components/common/brand-logo";
 import { Button } from "@/components/ui/button";
 import { requireAdminPage } from "@/lib/auth/require-admin";
 
@@ -19,9 +20,12 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         Lewati ke konten admin
       </a>
       <aside className="hidden min-h-screen border-r bg-background p-4 lg:sticky lg:top-0 lg:block lg:h-screen">
-        <div className="mb-6 px-3 py-2">
-          <p className="font-semibold">Travel Bali</p>
-          <p className="text-xs text-muted-foreground">Content Management</p>
+        <div className="mb-6 flex items-center gap-3 px-3 py-2">
+          <BrandLogo className="size-12" priority />
+          <div>
+            <p className="font-semibold">Travel Bali</p>
+            <p className="text-xs text-muted-foreground">Content Management</p>
+          </div>
         </div>
         <DesktopAdminNavigation />
       </aside>
@@ -30,6 +34,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           <div className="flex min-h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-3">
               <MobileAdminNavigation />
+              <BrandLogo className="size-10 lg:hidden" priority />
               <div>
                 <p className="font-semibold">Dashboard Admin</p>
                 <p className="text-xs text-muted-foreground">{admin.displayName}</p>

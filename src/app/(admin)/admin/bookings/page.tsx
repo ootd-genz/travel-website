@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { NativeSelect as Select } from "@/components/ui/native-select";
+import { FormSelect } from "@/components/ui/select";
 import {
   getAdminBookingPackageOptions,
   getAdminBookings,
@@ -124,33 +124,33 @@ export default async function AdminBookingsPage({
             </div>
             <div className="grid gap-2 lg:col-span-2">
               <Label htmlFor="booking-status">Status</Label>
-              <Select
+              <FormSelect
                 id="booking-status"
                 name="status"
                 defaultValue={filters.status}
-              >
-                <option value="">Semua status</option>
-                {BOOKING_STATUSES.map((status) => (
-                  <option key={status} value={status}>
-                    {BOOKING_STATUS_LABELS[status]}
-                  </option>
-                ))}
-              </Select>
+                options={[
+                  { value: "", label: "Semua status" },
+                  ...BOOKING_STATUSES.map((status) => ({
+                    value: status,
+                    label: BOOKING_STATUS_LABELS[status],
+                  })),
+                ]}
+              />
             </div>
             <div className="grid gap-2 lg:col-span-2">
               <Label htmlFor="booking-package">Paket</Label>
-              <Select
+              <FormSelect
                 id="booking-package"
                 name="packageId"
                 defaultValue={filters.packageId}
-              >
-                <option value="">Semua paket</option>
-                {packages.map((trip) => (
-                  <option key={trip.id} value={trip.id}>
-                    {trip.name}
-                  </option>
-                ))}
-              </Select>
+                options={[
+                  { value: "", label: "Semua paket" },
+                  ...packages.map((trip) => ({
+                    value: trip.id,
+                    label: trip.name,
+                  })),
+                ]}
+              />
             </div>
             <div className="grid gap-2 lg:col-span-2">
               <Label htmlFor="booking-from">Dari tanggal</Label>
