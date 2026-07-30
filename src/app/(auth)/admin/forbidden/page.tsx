@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { logoutAdmin } from "@/actions/admin-auth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 
 export const metadata: Metadata = {
   title: "Akses Ditolak",
@@ -21,7 +21,9 @@ export default function AdminForbiddenPage() {
           <div className="mb-3 flex size-10 items-center justify-center rounded-full bg-destructive/10 text-destructive">
             <ShieldX className="size-5" aria-hidden="true" />
           </div>
-          <CardTitle>Akses admin ditolak</CardTitle>
+          <h1 className="font-semibold leading-none tracking-tight">
+            Akses admin ditolak
+          </h1>
           <CardDescription>
             Sesi ini valid, tetapi akun tidak terdaftar sebagai admin aktif.
           </CardDescription>

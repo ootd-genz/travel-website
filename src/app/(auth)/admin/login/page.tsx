@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 import { BrandLogo } from "@/components/common/brand-logo";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { getSafeAdminRedirect } from "@/lib/auth/redirects";
 import { getAdminIdentity } from "@/lib/auth/require-admin";
 
@@ -33,7 +33,9 @@ export default async function AdminLoginPage({
       <Card className="w-full max-w-md">
         <CardHeader>
           <BrandLogo alt="Travel Bali" className="mb-3 size-16" priority />
-          <CardTitle>Login Admin</CardTitle>
+          <h1 className="font-semibold leading-none tracking-tight">
+            Login Admin
+          </h1>
           <CardDescription>
             Masuk menggunakan satu akun admin yang telah disetujui.
           </CardDescription>

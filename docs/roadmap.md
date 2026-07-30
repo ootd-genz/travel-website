@@ -384,34 +384,48 @@ hasil QA dicatat pada
 
 # Phase 12 — Automated Test, Manual QA & UAT Staging
 
+**Status implementasi teknis: selesai dan diverifikasi lokal pada 30 Juli 2026.**
+UAT staging belum dapat ditutup sampai URL staging HTTPS, credential Meta staging,
+credential login admin UAT, dan persetujuan pemilik bisnis tersedia.
+
 ## Test Suite
 
-- unit;
-- integration;
-- RLS;
-- E2E booking;
-- E2E admin;
-- WhatsApp failure scenario;
-- responsive;
-- accessibility;
-- SEO.
+- [x] unit untuk pricing, promo, schema input, normalisasi telepon, upload, dan formatter WhatsApp;
+- [x] integration contract untuk draft/submit atomik, cleanup storage, transisi status, audit, dan delivery retry;
+- [x] RLS static + read-only runtime check untuk public content, private booking, dan private bucket;
+- [ ] E2E booking pada staging sampai success, dashboard, dan delivery record;
+- [ ] E2E admin pada staging untuk login/logout, CRUD, proof, status, dan audit;
+- [x] WhatsApp failure scenario untuk timeout, `4xx`, `5xx`, non-blocking booking, dan bounded retry;
+- [x] responsive manual QA pada 390×844, 768×1024, 1024×768, 1265×720, dan 1440×900;
+- [x] accessibility manual QA untuk landmark, H1, alt, label, focus trap, Escape, dan focus return;
+- [x] SEO manual QA untuk title, description, canonical, robots, sitemap, noindex, dan real 404;
+- [x] consolidated command `npm run test:phase12` dan release gate `npm run check`;
+- [x] read-only staging gate `npm run test:phase12:staging`.
 
 ## UAT Bisnis
 
 Pemilik bisnis memvalidasi:
 
-- copywriting;
-- harga;
-- rekening BCA;
-- nama rekening;
-- flow transfer;
-- booking data;
-- pesan WhatsApp;
-- admin usability.
+- [ ] copywriting;
+- [ ] harga;
+- [ ] rekening BCA;
+- [ ] nama rekening;
+- [ ] flow transfer;
+- [ ] booking data;
+- [ ] pesan WhatsApp;
+- [ ] admin usability.
 
 ## Exit Criteria
 
-Tidak ada blocker/high severity issue pada flow pembayaran, booking, auth, atau data privacy.
+- [x] regression teknis lokal tidak memiliki blocker/high severity issue;
+- [x] temuan hierarchy heading pada login dan forbidden telah diperbaiki;
+- [ ] preflight staging lulus tanpa kegagalan;
+- [ ] E2E booking dan admin staging lulus;
+- [ ] tidak ada blocker/high severity issue pada flow pembayaran, booking, auth, atau data privacy di staging;
+- [ ] persetujuan UAT bisnis dicatat oleh pemilik bisnis.
+
+Implementasi, bukti QA, prosedur staging, dan checklist sign-off tersedia pada
+[`36-phase-12-automated-test-manual-qa-uat-staging.md`](36-phase-12-automated-test-manual-qa-uat-staging.md).
 
 ---
 
