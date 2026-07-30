@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { BrandLogo } from "@/components/common/brand-logo";
+import { ThemeToggle } from "@/components/common/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { getSafeAdminRedirect } from "@/lib/auth/redirects";
@@ -29,7 +30,8 @@ export default async function AdminLoginPage({
   }
 
   return (
-    <main className="grid min-h-screen place-items-center bg-muted/40 px-4 py-12">
+    <main className="relative grid min-h-screen place-items-center bg-muted/40 px-4 py-12">
+      <ThemeToggle className="absolute right-4 top-4 sm:right-6 sm:top-6" />
       <Card className="w-full max-w-md">
         <CardHeader>
           <BrandLogo alt="Travel Bali" className="mb-3 size-16" priority />

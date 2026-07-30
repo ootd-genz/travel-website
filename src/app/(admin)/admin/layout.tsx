@@ -5,8 +5,10 @@ import type { ReactNode } from "react";
 
 import { logoutAdmin } from "@/actions/admin-auth";
 import { BrandLogo } from "@/components/common/brand-logo";
+import { ThemeToggle } from "@/components/common/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { requireAdminPage } from "@/lib/auth/require-admin";
+import { ThemeProvider } from "@/providers/theme-provider";
 
 import {
   DesktopAdminNavigation,
@@ -23,6 +25,13 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   const admin = await requireAdminPage("/admin");
 
   return (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+      storageKey="travel-admin-theme"
+    >
     <div className="min-h-screen bg-muted/45 lg:grid lg:grid-cols-[18rem_1fr]">
       <a className="skip-link" href="#admin-main-content">
         Lewati ke konten admin
@@ -73,6 +82,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             </div>
 
             <div className="flex items-center gap-2">
+              <ThemeToggle />
               <Button asChild variant="ghost" size="sm" className="hidden sm:flex">
                 <Link href="/" target="_blank">
                   Lihat situs
@@ -99,5 +109,6 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         </main>
       </div>
     </div>
+    </ThemeProvider>
   );
 }

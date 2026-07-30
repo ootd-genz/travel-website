@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { lazy, Suspense, useState } from "react";
 
+import { ThemeToggle } from "@/components/common/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -72,6 +73,7 @@ export function SiteNavigation({ brandName }: { brandName: string }) {
       </nav>
 
       <div className="flex items-center gap-2">
+        <ThemeToggle />
         <Button asChild size="sm" className="hidden sm:inline-flex">
           <Link href="/trips">Lihat Paket</Link>
         </Button>

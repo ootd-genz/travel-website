@@ -71,21 +71,24 @@ export default async function AdminPage() {
       value: bookings.waitingVerification,
       description: "booking menunggu pemeriksaan",
       icon: CircleAlert,
-      iconClassName: "bg-amber-100 text-amber-700",
+      iconClassName:
+        "bg-amber-100 text-amber-800 dark:bg-amber-400/15 dark:text-amber-300",
     },
     {
       label: "Sudah dikonfirmasi",
       value: bookings.confirmed,
       description: "booking aktif terkonfirmasi",
       icon: CheckCircle2,
-      iconClassName: "bg-emerald-100 text-emerald-700",
+      iconClassName:
+        "bg-emerald-100 text-emerald-800 dark:bg-emerald-400/15 dark:text-emerald-300",
     },
     {
       label: "Masuk bulan ini",
       value: bookings.thisMonth,
       description: "booking terkirim bulan ini",
       icon: CalendarDays,
-      iconClassName: "bg-sky-100 text-sky-700",
+      iconClassName:
+        "bg-sky-100 text-sky-800 dark:bg-sky-400/15 dark:text-sky-300",
     },
     {
       label: "Paket tayang",
@@ -140,21 +143,21 @@ export default async function AdminPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-amber-950">
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-amber-950 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-100">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm font-medium text-amber-800">
+                <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
                   Prioritas utama
                 </p>
                 <p className="mt-1 text-4xl font-semibold tracking-tight">
                   {bookings.waitingVerification}
                 </p>
               </div>
-              <span className="grid size-10 place-items-center rounded-full bg-amber-100 text-amber-700">
+              <span className="grid size-10 place-items-center rounded-full bg-amber-100 text-amber-800 dark:bg-amber-400/15 dark:text-amber-300">
                 <CircleAlert className="size-5" aria-hidden="true" />
               </span>
             </div>
-            <p className="mt-3 text-sm leading-5 text-amber-800">
+            <p className="mt-3 text-sm leading-5 text-amber-800 dark:text-amber-200">
               {bookings.waitingVerification > 0
                 ? "Booking menunggu verifikasi pembayaran dan tindak lanjut."
                 : "Tidak ada booking yang menunggu verifikasi saat ini."}
